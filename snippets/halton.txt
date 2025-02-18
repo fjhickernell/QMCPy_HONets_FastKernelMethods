@@ -1,0 +1,8 @@
+halton = qp.Halton(
+    dimension = 52, 
+    randomize = "LMS_PERM", # Matousek's LMS with a digital permutation
+    # options are [LMS_PERM, LMS_DS, LMS, PERM, DS, NUS, QRNG, FALSE]
+    t_lms = 64, # number of LMS digits i.e. number of rows in S_j
+    replications = 15, # R
+    seed = None) # pass integer seed for reproducibility
+x = halton(2**10) # a numpy.ndarray with shape 15 x 1024 x 52

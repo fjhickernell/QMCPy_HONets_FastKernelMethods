@@ -1,0 +1,11 @@
+dnb2 = qp.DigitalNetB2(
+    dimension = 52, 
+    randomize = "LMS_DS", # Matousek's LMS with a digital shift
+    # options are [LMS_DS, NUS, DS, LMS, False]
+    t_lms = 64, # number of LMS bits i.e. number of rows in S_j
+    alpha = 2, # interlacing factor for higher order digital nets
+    replications = 15, # R
+    graycode = False, # use natural order instead of Gray code order 
+    seed = None, # pass integer seed for reproducibility
+    generating_matrices = "LDData:mps.sobol_Cs.txt")
+x = dnb2(2**16) # a numpy.ndarray with shape 15 x 65536 x 52

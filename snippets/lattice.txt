@@ -1,0 +1,8 @@
+lattice = qp.Lattice(
+    dimension = 52,
+    randomize = "shift", # for unrandomized lattice set randomize = False
+    replications = 16, # R
+    order = "natural", # also supports "linear" and "Gray" for Gray code
+    seed = None, # pass integer seed for reproducibility
+    generating_vector = "kuo.lattice-33002-1024-1048576.9125.txt")
+x = lattice(2**16) # a numpy.ndarray with shape 16 x 65536 x 52

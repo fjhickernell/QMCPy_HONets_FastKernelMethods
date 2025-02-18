@@ -1,0 +1,16 @@
+d = 5 # dimension
+n = 2**20 # 2^20 points
+dd_obj = qp.Lattice(dimension=d, seed=7) 
+# qp.Lattice defaults to natural ordering with a single random shift 
+kernel_obj = qp.KernelShiftInvar( # matching kernel 
+    dimension = d,
+    lengthscales = 0.1*np.ones(d,dtype=float), # product weights
+    alpha = 4*np.ones(d,dtype=int)) # smoothness parameters
+K = qp.FastGramMatrixLattice( # n x n Gram matrix
+    kernel_obj = kernel_obj, 
+    dd_obj = dd_obj, 
+    n1 = n,
+    n2 = n)
+y = np.random.rand(n) # get a random length n vector  
+a = K@y # compute the matrix-vector product a=Ky at O(n log n) cost
+b = K.solve(y) # solve linear system Kb=y for b at O(n log n) cost
