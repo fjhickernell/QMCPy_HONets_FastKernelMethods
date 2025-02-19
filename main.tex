@@ -51,6 +51,7 @@
 \title{A Unified Implementation of Quasi-Monte Carlo Generators, Randomizion Routines, and Fast Kernel Methods}
 
 \author{Aleksei G Sorokin}
+\author{Fred J Hickernell}
 %\authornote{Both authors contributed equally to this research.}
 \email{asorokin@hawk.iit.edu}
 \orcid{0000-0003-1004-4632}
@@ -62,12 +63,13 @@
   \country{USA}
 }
 
-% \author{Lars Th{\o}rv{\"a}ld}
 % \affiliation{%
-%   \institution{The Th{\o}rv{\"a}ld Group}
-%   \city{Hekla}
-%   \country{Iceland}}
-% \email{larst@affiliation.org}
+%   \institution{Illinois Institute of Technology, Department of Applied Mathematics}
+%   \city{Chicago}
+%   \state{Illinois}
+%   \country{USA}
+% \email{hickernell@iit.edu}
+% }
 
 %\renewcommand{\shortauthors}{Trovato et al.}
 
@@ -154,7 +156,7 @@ Here $f: [0,1]^d \to \bbR$ is a given integrand and $\{\bx_i\}_{i=0}^{n-1} \in [
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/pointsets.eps}
+    \includegraphics[width=1\textwidth]{./figs/pointsets.eps}
     \caption{An independent identically distributed (IID) pointset and low-discrepancy (quasi-random) pointsets of size $n=2^{13}=8192$. Notice the quasi-random points more evenly fill the space than IID points, which leads to faster convergence of Quasi-Monte Carlo methods compared to IID Monte Carlo methods. Randomized lattices, digital nets in base $b=2$ (DN${}_{2}$), and Halton points are shown. Randomizations include shifts, linear matrix scramblings (LMS), digital shifts (DS), and nested uniform scramblings (NUS). Digital interlacing of order $\alpha$ is used to create higher-order randomized digital nets (HO${}_\alpha$).}
     \Description[]{}
     \label{fig:pointsets}
@@ -466,7 +468,7 @@ Recall from the introduction that we would like to compute the matrix-vector pro
 
 \begin{figure}%[H]
     \centering
-    %%\includegraphics[width=1\textwidth]{./figs/kernels.eps}
+    \includegraphics[width=1\textwidth]{./figs/kernels.eps}
     \caption{Shift-invariant kernels (top row) and digitally-shift-invariant kernels (bottom row). Here $\alpha$ denotes the smoothness of the kernel. The $\alpha=3$ and $\alpha=4$ digitally-shift-invariant kernels are nearly indistinguishable. Shift-invariant kernels are described in \cref{subsec:SI_kernels} while digitally-shift-invariant kernels are described in \cref{subsec:DSI_kernels}.}
     \Description[]{}
     \label{fig:SI_DSI_kernels}
@@ -806,7 +808,7 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/timing.eps}
+    \includegraphics[width=1\textwidth]{./figs/timing.eps}
     \caption{Comparison of time required to generate IID and low-discrepancy pointsets and perform fast transforms. All pointsets are generated in a single dimension and with a single randomizations. BR indicates the bit-reversed FFT and IFFT.}
     \Description[]{}
     \label{fig:timing}
@@ -824,7 +826,7 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/convergence.eps}
+    \includegraphics[width=1\textwidth]{./figs/convergence.eps}
     \caption{The RMSE of the RQMC estimate for a few different integrands. Higher-order digital nets with linear matrix scrambling and digital shifts achieve higher-order convergence.}
     \Description[]{}
     \label{fig:convergence}
