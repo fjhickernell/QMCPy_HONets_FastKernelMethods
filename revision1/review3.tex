@@ -1,0 +1,121 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{bm}
+\usepackage{xcolor}
+
+\newcommand{\response}[1]{{\newline \textcolor{blue}{#1}}}
+\newcommand{\rbullet}{\textcolor{red}{\textbullet}}
+\newcommand{\fixed}{\response{Fixed.}}
+
+
+\usepackage[square,sort,comma,super,authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+\begin{document}
+
+\section{Response to Third Reviewer} 
+
+\textbf{Recommendation:} Needs Major Revision
+
+\noindent\textbf{Comments:} This paper describes some of the new features of the software QMCPy to generate QMC point sets in python, focusing on unifying features that were recently incorporated. From an algorithmic point of view, the main novelty seems to be in the routines developed by the author in the context of kernel methods and fast transforms.
+
+While the accompanying software makes an important contribution to the wider adoption of quasi-Monte Carlo methods, the paper itself would require a major revision to be better aligned with the standards and expectations of the journal.
+
+The following areas would need to be improved:
+\begin{itemize}
+    \item the paper reads well but there are a number of mistakes and omissions (e.g., terms not defined) which weaken the overall presentation.
+    \item[\rbullet] we seem to be presented with a limited view of the functionalities of the library. This makes it hard to assess whether or not the software is indeed unifying and meant to become the “one-stop shop” for users of QMC methods. In particular, we are not provided with enough evidence that the current version of the software is superior to earlier versions presented in the earlier papers Choi et all 2022a,b, or that there are new functionalities that, e.g., reduce code size or are able to handle more general situations.
+    \item[\rbullet] related to this, while there is a clear indication that some of the material in Section 5 is new, it is less clear how the list of “novel components” given on page 2 is actually novel. The paragraph that precedes the list of three items suggests this may have already been covered in Choi et all 2022a,b, which is mentioned as including a “more comprehensive review”? Please clarify how this paper differs from Choi et al, 2022a,b.
+    \item[\rbullet] timing results: if is not clear whether or not the timing includes the time required for initialization. The shape of the timing results in Figure 5 suggests it’s the case. Also from the code snippets it appears to be the case that when using the software, one must create all R copies of the point set and save them. When using simple Monte Carlo, one has the option to simply generate one point at a time as needed, i.e., on-the-fly. The timing results should include a comparison with ``on-the-fly’’ Monte Carlo sampling. Less importantly, for lattices (still in Fig. 5), it doesn’t say if they are implemented from a lattice sequence or a new point set is generated for each n.
+\end{itemize}
+
+Other comments
+\begin{itemize}
+    \item point set is two words, not one word “pointset”: please correct throughout
+    \fixed
+    \item abstract: while one could argue that FFT should be known to most people, IFFT and FWHT are not widely used acronyms should should be defined the first time they are used
+    \response{These acronyms are now spelled out the first time they are used in both the abstract and main text.}
+    \item page 2, line 5 of “Halton pointsets”: the term generalized digital nets is not widely accepted. Please explain.
+    \response{Added an explanation of generalized Halton point sets and a reference to} 
+    \response{Faure, Henri, and Christiane Lemieux. "Generalized Halton sequences in 2008: A comparative study." ACM Transactions on Modeling and Computer Simulation (TOMACS) 19.4 (2009): 1-31.}
+    \item page 3, Figure 1, 5th picture on top row: what is DP?
+    \response{Specified DP is digital permutation in the caption.} 
+    \item page 3, Eq. (1): this is presented as being MC but is used later on for point sets other than iid points forming MC. So this should be presented more generally than being MC.
+    \response{Now specifies that this equation is for both MC and QMC.} 
+    \item page 3, last line: $\hat{\mu}(1)$ not defined.
+    \fixed
+    \item page 4, line 1 and throughout: “fig.1” needs to be capitalized “Fig.1” Any item that is numbered needs to be capitalized, e.g., Section x, Table y, etc.
+    \fixed 
+    \item page 4, line 5 below (2), question mark in the references need to be removed
+    \fixed 
+    \item page 4, paragraph below (2): please also refer to Matousek’s (1998) paper  when discussing linear matrix scrambling (it is in the list of references) as he is the one who introduced this method.
+    \response{Added.}
+    \item page 4, on line where it says “Discrepancy Computation”: remove “Monte Carlo” as this seems to be discussing general approximations for $\mu$; and just below that line, insert “of” after product
+    \fixed 
+    \item page 4, last two lines of the “Discrepancy Computation” paragraph: “a neural networks”; either remove “a” or remove “s” at the end of network.
+    \fixed 
+    \item page 4, toward the end: please clarify the connection between $H$ and $K$
+    \response{Changed to ``$H$ with kernel $K$''.} 
+    \item page 4, last line: say “the discrepancy above” or “this discrepancy” but then put an equation number and refer to that number
+    \fixed
+    \item[\rbullet] page 5, middle: At this point, it is not clear yet what “natural order” means. Please explain or at least say this will be explained later.
+    \item page 5, line 2 of Section 1.3: “rank-1 lattices”, i.e., insert hyphen and fix throughout
+    \fixed 
+    \item page 6, line below (3): van der Corput (van not capitalized)
+    \fixed 
+    \item page 6: the reader would benefit from being told that when n is not of the form $b^m$, then the natural and linear orders will not generate the same lattice point set
+    \response{Added a sentence saying this.} 
+    \item page 7, insert “on” after “only” in the last line of the caption for Fig. 2
+    \fixed 
+    \item page 8, Section 4.2, first line: $t_\mathrm{max}$ not defined yet. Also, the concept of natural order has only been defined for lattices. Although one may guess what it means for nets, it should be explained.
+    \response{Specified $t_\mathrm{max} \in \mathbb{N}$ and cleaned up the sentence defining digital nets.}
+    \item page 8, on the line where it says “Digitally permuted digital net” “we will” and not just “will”. In that same part and the next one, the point set starts at i=1, i.e., excludes 0. If this is on purpose, then it is not a net anymore and this should be mentioned, along with an explanation as to why 0 is excluded.
+    \response{Fixed the typo and changed all point sets to have $i=0,\dots,n-1$ indices.}
+    \item page 8, NUS paragraph: should read remove “values” after $\pi$ i.e., “As , before $\pi$ denotes”
+    \fixed
+    \item page 8, below the equation defining $|{\cal P}|$, “generate” and not “generated”; a priori and not apriori
+    \fixed 
+    \item page 8, use of “mod b” with matrix operations: we were told in Section 3 that modulo on a vector would be taken component-wise. Ideally one would explain all matrix operations are carried modulo b
+    \response{I have now clarified this in Section 3 after introducing componenent-wise modulo.} 
+    \item page 9, seems like something might be missing when it says “$=\lfloor t/\alpha \rfloor$”, i.e., what is equal to that?
+    \fixed. 
+    \item page 9, below matrix descriptions: we were only told so far how to interlace generating matrices. We were not told how to interlace digit expansions. Please explain.
+    \response{I have tried to clean up the description of digital interlacing by introducing interlacing on generic matrices  and then saying specifying when to apply to generating matrices and when to apply to point set digit matrices.} 
+    \item page 9, line -2: remove “rather”.
+    \fixed
+    \item page 10, below Table 1: clarify that you’re applying R times (independently) the combination LMS and shift.
+    \response{Reworded this sentence to be more clear.}
+    \item page 10, first line of Sec. 4.3: fix -> fixed
+    \fixed
+    \item page 11, code snippet: I don’t know what the “LMS with a digital permutation” is
+    \response{I added a sentence specifying we generate an LMS-Halton point set and apply an independent digital permutation to the result $R$ times independently.}
+    \item page 12, line 2: “is then used to perform”
+    \fixed
+    \item page 15, remove one of the “at” after 3rd displayed equation; insert “of” after “products” two lines above K(u,v) display
+    \fixed
+    \item page 15, what is the assumption on alpha when it says “We now describe one-dimensional… of higher order smoothness $\alpha$” around the middle of the page?
+    \response{Specified $\alpha \geq 2$}
+    \item page 15, the statement of Theorem 5.1 is confusing. What is the result? The form of the inner product or the fact that $H_alpha$ is in $\tilde{H}_alpha$? Please re-state so it is more clear what are the assumptions and what is the conclusion.
+    \response{I have rephrased this to be more clear.}
+    \item page 16: in Theorem 5.2, what is $\nu$?
+    \response{Clarified $t_\nu$ definition for $\nu \in \mathbb{N}$.}
+    \item page 16, line 1 of Section 5.3: it is not clear what those “general assumptions” are. Please be more precise.
+    \response{They are now introduced as properties of the two formulations rather than assumptions.} 
+    \item page 17: the argument that comparing in d=1 is sufficient makes an implicit assumptions that one would deal with product weights in higher dimensions. This should be mentioned. Otherwise this introduces a complexity that is not linear in the dimension.
+    \response{I think your comment is referring to kernel evaluations and kernel weights? We only compare times for generating point sets and applying fast transforms, which shouldn't depend on kernel weights. Perhaps I am missing something?} 
+    \item[\rbullet] page 17, line 9 in Section 6: then -> than; line 10 “as we show” and not “as we shown”
+    \fixed 
+    \item[\rbullet] page 17, last line: bold capital X is not defined in (1) so this statement is confusing.
+    \response{Clarified we are looking at the  RMSE of the (Q)MC estimator $\hat{\mu}$ from (1) and discarded the $\boldsymbol{X} \sim \mathcal{U}[0,1]^d$.}
+    \item page 18: add colon after ``integrands follows:''
+    \fixed
+    \item[\rbullet] page 18: the end of Section 6 should be rewritten. There are a few limited comments on the results and the test functions are defined AFTER that, which gives the impression the section ends with no comments on the results.
+    \item[\rbullet] references: unusual to have complete first names. Does not seem to be the required format of the journal.
+\end{itemize}
+
+\bibliography{./ags,./main}
+
+\end{document}

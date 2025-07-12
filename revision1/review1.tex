@@ -1,0 +1,47 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{bm}
+\usepackage{xcolor}
+
+\newcommand{\response}[1]{{\newline \textcolor{blue}{#1}}}
+\newcommand{\rbullet}{\textcolor{red}{\textbullet}}
+\newcommand{\fixed}{\response{Fixed.}}
+
+
+\usepackage[square,sort,comma,super,authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+\begin{document}
+
+\section{Response to First Reviewer} 
+
+This paper is providing a description of quasi-Monte Carlo sequences generators, an implementation of randomization techniques and fast kernel methods in the Python package qmcpy. As a contribution, a new digitally-shift-invariant kernel is derived.
+
+The paper is interesting but I have several concerns which would mean a complete rewriting:
+\begin{itemize} 
+    \item[\rbullet] The goal and message of the paper is not clear to me and should be really highlighted. I see some long description of QMC sequences, randomizations and kernel methods (with a new one), but this was mostly already existing; it is hard for me to retain what the author wants to tell. I would have expected a description of a (new) use of qmcpy, but there is not such a focus and the provided algorithms are not explained (so that I do not really see the interest of inserting them in the paper).
+    \item[\rbullet] A related point, the level of contribution does not seem to me sufficient for a journal paper: it is rather limited to some digitally-shift-invariant kernels. As it is, it is hard for me to count the implementation of MC sequences and randomizations as a contribution since the implementation those techniques were already existing (even if maybe differently) and the description of the novelty in the implementation is not really described.
+    \item[\rbullet] There is no comparison with existing other softwares implementing QMC techniques in terms of performance and range of techniques. That is something which would interest me and probably the community.
+    \item[\rbullet] The level of writing is not what I am expecting for a journal like ACM ToMS. Indeed, the style is quite abrupt, many notions are not introduced and would lose a non-expert reader. To give an illustration, the introduction starts with a list of generators, randomizations and kernels, but no context about why they are of interest.
+    \item[\rbullet] The numerical experiments are limited to dimensions up to 3, which may be seen limited. Again, I would have liked a comparison with existing softwares.
+\end{itemize} 
+
+For those reasons, I recommend to reject the paper.
+
+Some additional remarks:
+
+\begin{enumerate} 
+    \item First sentence of Section 1.2 “Low-discrepancy (LD) pointsets can also been used to accelerated many kernel computations” to be rephrased.
+    \fixed
+    \item[\rbullet] Several acronyms used without or before being defined (RKHS, IFFT, FWHT...).
+    \item[\rbullet] The term ``unified'' is used in the title, but I have to admit I do not see exactly what it unifies with respect to the literature.
+    \item performed performed” Page 5.
+    \fixed
+\end{enumerate}
+
+\bibliography{./ags,./main}
+
+\end{document}

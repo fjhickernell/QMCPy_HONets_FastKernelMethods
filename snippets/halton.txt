@@ -1,6 +1,6 @@
 halton = qp.Halton(
     dimension = 52, 
-    randomize = "LMS_PERM", # Matousek's LMS with a digital permutation
+    randomize = "LMS_PERM", # Matousek's LMS then a digital permutation
     # options are [LMS_PERM, LMS_DS, LMS, PERM, DS, NUS, QRNG, FALSE]
     t_lms = 64, # number of LMS digits i.e. number of rows in S_j
     replications = 15, # R

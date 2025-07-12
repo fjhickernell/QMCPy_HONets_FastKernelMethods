@@ -1,0 +1,47 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{bm}
+\usepackage{xcolor}
+
+\newcommand{\response}[1]{{\newline \textcolor{blue}{#1}}}
+\newcommand{\rbullet}{\textcolor{red}{\textbullet}}
+\newcommand{\fixed}{\response{Fixed.}}
+
+
+\usepackage[square,sort,comma,super,authoryear]{natbib}
+\bibliographystyle{plainnat}
+
+\begin{document}
+
+\section{Response to Second Reviewer} 
+
+\textbf{Recommendation:} Needs Minor Revision
+
+\noindent\textbf{Comments:} I think the article is a nice overview of current computational technology on QMC methods.
+
+\noindent Sometimes I feel the text is a bit sloppy. I have a few concrete remarks:
+
+\begin{itemize}
+    \item p4, L2 discrepancy formula: I do not see the point of not writing the integration domain in the display itself
+    \response{Changed so the integral domain is written in the display.}
+    \item p4, bottom of page: it is not explained what the matrix K is when it is first used in the text
+    \response{$\mathsf{K}$ is now described in the first sentence of the section.}
+    \item section 4: it would be good to explicitly mention "radical inversion"
+    \response{Mentioned.}
+    \item section 4: "to flip the digits of i about the decimal" is only correct for base 10, and only then I think it should be written differently
+    \response{I removed this phrase about flipping digits.}
+    \item[\rbullet] section 4.1: I found the choice of words "natural order" extremely confusing; I am pretty sure this has been used in other sources to mean the natural order in terms of k z / n for k = 0, 1, 2, ... I see that I am maybe late to the party, but the least the author could do is maybe write something like "natural order, i.e., radical inversion ordering". I dully note that later in Section 4.2 the "natural order" indeed looks more "natural", and is only equal to the radical inversion if the first matrix is the identity matrix. But I feel this is even more reason to say that the "linear order" is in fact the "natural order" for the lattice as well, since the same effect can be conceived for a lattice by taking $z_1$ to be nice for iterating through the points one by one.
+    \item p6, bottom: {i/n g mod 1} please reorder or put parentheses
+    \response{Reordered.} 
+    \item[\rbullet] section 4.2: I thought that for a lot of the permutation methods the theory actually requires to map 0 to 0.
+    \item[\rbullet] section 6: The author says that the timings are only done for d=1 and a single randomization and claims this is linear in complexity. Yes this is correct asymptotically, but depending on data layout and implementation (like ordering) things could actually look quite differently in real tests. I would strongly suggest that to strengthen this claim, a second set of results is included for say d=50 and 10 random shifts.
+    \item[\rbullet] section 6: It is said that generating Halton points is slower and cannot use updating methods; but I remember that there is actually published results showing how to generate consecutive updates for Halton points.
+    \item[\rbullet] What I find missing in the article is an actual piece of example code to actually compute a high-dimensional integrand. Yes it is noted that the author mentions there is a notebook available for all the numerical experiments in the article, but one would hope that a demonstration to compute let say a 50 dimensional integral with 10 randomizations would fit in a couple of lines. (Say to demonstrate the timing as requested above.)
+\end{itemize}
+
+\bibliography{./ags,./main}
+
+\end{document}

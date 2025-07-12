@@ -75,7 +75,7 @@
 
 % http://dl.acm.org/ccs.cfm
 \begin{abstract}
-    Quasi-random sequences, also called low-discrepancy sequences, have been extensively used as efficient experimental designs across many scientific disciplines. This article provides a unified description and software API for methods pertaining to low-discrepancy point sets. These methods include low discrepancy point set generators, randomization techniques, and fast kernel methods. Specifically, we provide generators for lattices, digital nets, and Halton point sets. Supported randomization techniques include random permutations / shifts, linear matrix scrambling, and nested uniform scrambling. Routines for working with higher-order digital nets and scramblings are also detailed. For kernel methods, we provide implementations of special shift-invariant and digitally-shift invariant kernels along with fast Gram matrix operations facilitated by the bit-reversed FFT, the bit-reversed IFFT, and the FWHT. A new digitally-shift-invariant kernel of higher-order smoothness is also derived. We also describe methods to quickly update the matrix-vector product or linear system solution after doubling the number of points in a lattice or digital net in natural order.
+    Quasi-random sequences, also called low-discrepancy sequences, have been extensively used as efficient experimental designs across many scientific disciplines. This article provides a unified description and software API for methods pertaining to low-discrepancy point sets. These methods include low discrepancy point set generators, randomization techniques, and fast kernel methods. Specifically, we provide generators for lattices, digital nets, and Halton point sets. Supported randomization techniques include random permutations / shifts, linear matrix scrambling, and nested uniform scrambling. Routines for working with higher-order digital nets and scramblings are also detailed. For kernel methods, we provide implementations of special shift-invariant and digitally-shift invariant kernels along with fast Gram matrix operations facilitated by the bit-reversed Fast Fourier Transform (FFT), the bit-reversed Inverse Fast Fourier Transform (IFFT), and the Fast Walsh Hadamard Transform (FWHT). A new digitally-shift-invariant kernel of higher-order smoothness is also derived. We also describe methods to quickly update the matrix-vector product or linear system solution after doubling the number of points in a lattice or digital net in natural order.
     
     % Quasi-random point sets were originally developed to replace the independent and identically distributed (IID) sequences used in classic Monte Carlo (MC) methods for high dimensional integral approximation. IID randomizations of low-discrepancy sequences gave way to randomized Quasi-Monte Carlo (RQMC) methods which enabled practical error analysis and yielded improved convergence rates. Specifically, IID-MC has a root mean squared error (RMSE) of order $\calO(n^{-1/2})$ in the number of samples $n$ while, for smooth integrands, RQMC methods have an RMSE of order $\calO(n^{-3/2+\delta})$ with $\delta>0$ arbitrarily small. Higher-order low-discrepancy point sets were also developed, and, for integrands with additional smoothness, a nested uniform scrambling (NUS) randomization of higher-order digital nets was shown to have an RMSE of order $\calO(n^{-\alpha-1/2+\delta})$.
     
@@ -138,7 +138,7 @@ Below we summarize the novel components of our \texttt{QMCPy} software which we 
     \item[Digital nets in base $2$] We support generating digital nets in natural or Gray code order and randomizing with linear matrix scrambling (LMS) \citep{owen.variance_alternative_scrambles_digital_net}, digital shifts, nested uniform scrambling (NUS) \citep{owen1995randomly}, and permutation scrambling. To the best of our knowledge, we are also the only Python implementation to support digital interlacing for the creating of higher order digital nets and higher order scrambling with either LMS or NUS. 
     
     Early implementations of unrandomized digital sequences, including the Faure, Sobol' and Niederreiter-Xing constructions, can be found in \citep{fox1986algorithm,bratley1992implementation,bratley2003implementing,pirsic2002software}. Considerations for implementing scrambles for digital sequences was discussed in \citep{hong2003algorithm}. Recent digital net implementations supporting LMS and digital shifts  include those in \texttt{MPS}, PyTorch \citep{paszke2019pytorch}, SciPy \citep{virtanen2020scipy}, and MATLAB \citep{MATLAB}. \texttt{LatNet Builder} provides robust support for all randomization routines and digital interlacing for higher order nets and scramblings. \texttt{LatNet Builder} and \texttt{MPS} also provide search routines for finding good generating matrices which define digital nets. 
-    \item[Halton point sets] As with digital nets, we support randomizing Halton point sets with LMS, digital shifts, NUS, and permutation scrambles. The implementation of Halton point sets and randomizations have been treated in \citep{owen_halton,wang2000randomized}. The \texttt{QRNG}\footnote{https://cran.r-project.org/web/packages/qrng/qrng.pdf} (Quasi-Random Number Generators) R package \citep{qrng.software} implements generalized digital nets which use optimized digital permutation scrambles; these are also supported in \texttt{QMCPy}. \texttt{LatNet Builder} also provides support for Halton points and their randomizations. 
+    \item[Halton point sets] As with digital nets, we support randomizing Halton point sets with LMS, digital shifts, NUS, and permutation scrambles. The implementation of Halton point sets and randomizations have been treated in \citep{owen_halton,wang2000randomized}. The \texttt{QRNG}\footnote{https://cran.r-project.org/web/packages/qrng/qrng.pdf} (Quasi-Random Number Generators) R package \citep{qrng.software} implements generalized Halton point sets \citep{faure2009generalized} which use optimized digital permutation scrambles; these are also supported in \texttt{QMCPy}. \texttt{LatNet Builder} also provides support for Halton points and their randomizations. 
     \item[Kernel Methods and Fast Transforms] We provide routines to evaluate special shift-invariant and digitally-shift-invariant kernels. This includes a new digitally-shift-invariant kernel of higher-order smoothness derived in this paper. These are not readily available elsewhere. 
     
     We also provide routines for fast matrix-vector multiplication and inversion of the nicely-structured Gram matrices produced when pairing these special kernels with certain low-discrepancy sequences. We also describe novel routines to efficiently update the matrix-vector products and linear system solves in the Gram matrix after doubling the number of lattice or digital net points. These fast operations are backed by implementations of the Fast Walsh Hadamard Transform (FWHT), the bit-reversed fast Fourier Transform (FFT), and the bit-reversed inverse FFT (IFFT). We are among the first to provide efficient and accessible Python interfaces to such fast kernel methods and the underlying fast transforms. \texttt{GAIL} has implemented fast Bayesian cubature routines utilizing this machinery. 
@@ -147,7 +147,7 @@ These above routines are most commonly used in Quasi-Monte Carlo methods and for
 
 \subsection{Quasi-Monte Carlo methods}
 
-Monte Carlo (MC) methods approximate a high dimensional integral over the unit cube by the sample average of function evaluations at certain sampling locations:
+Monte Carlo (MC) and Quasi-Monte Carlo (QMC) methods approximate a high dimensional integral over the unit cube by the sample average of function evaluations at certain sampling locations:
 \begin{equation}
     \mu := \int_{[0,1]^d} f(\bx) \D \bx \approx \frac{1}{n} \sum_{i=0}^{n-1} f(\bx_i) =: \hmu.
     \label{eq:mc_approx}
@@ -156,22 +156,22 @@ Here $f: [0,1]^d \to \bbR$ is a given integrand and $\{\bx_i\}_{i=0}^{n-1} \in [
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/point sets.eps}
-    \caption{An independent identically distributed (IID) point set and low-discrepancy (quasi-random) point sets of size $n=2^{13}=8192$. Notice the quasi-random points more evenly fill the space than IID points, which leads to faster convergence of Quasi-Monte Carlo methods compared to IID Monte Carlo methods. Randomized lattices, digital nets in base $b=2$ (DN${}_{2}$), and Halton points are shown. Randomizations include shifts, linear matrix scramblings (LMS), digital shifts (DS), and nested uniform scramblings (NUS). Digital interlacing of order $\alpha$ is used to create higher-order randomized digital nets (HO${}_\alpha$).}
+    %\includegraphics[width=1\textwidth]{./figs/pointsets.eps}
+    \caption{An independent identically distributed (IID) point set and low-discrepancy (quasi-random) point sets of size $n=2^{13}=8192$. Notice the quasi-random points more evenly fill the space than IID points, which leads to faster convergence of Quasi-Monte Carlo methods compared to IID Monte Carlo methods. Randomized lattices, digital nets in base $b=2$ (DN${}_{2}$), and Halton points are shown. Randomizations include shifts, linear matrix scramblings (LMS), digital shifts (DS), digital permutations (DP), and nested uniform scramblings (NUS). Digital interlacing of order $\alpha$ is used to create higher-order randomized digital nets (HO${}_\alpha$).}
     \Description[]{}
     \label{fig:point sets}
 \end{figure}
 
-Quasi-Monte Carlo (QMC) methods \citep{niederreiter.qmc_book,dick.digital_nets_sequences_book,kroese.handbook_mc_methods,dick2022lattice,lemieux2009monte,sloan1994lattice} replace IID point sets with low-discrepancy (LD) point sets which more evenly cover the unit cube $[0,1]^d$. For integrands with bounded variation, plugging LD point sets into $\hmu$ \eqref{eq:mc_approx} yields a worst-case error rate of $\calO(n^{-1+\delta})$ with $\delta>0$ arbitrarily small. Some popular LD point sets are plotted in \cref{fig:point sets} including lattices, digital nets (including higher-order versions), and Halton point sets.
+QMC methods \citep{niederreiter.qmc_book,dick.digital_nets_sequences_book,kroese.handbook_mc_methods,dick2022lattice,lemieux2009monte,sloan1994lattice} replace IID point sets with low-discrepancy (LD) point sets which more evenly cover the unit cube $[0,1]^d$. For integrands with bounded variation, plugging LD point sets into \eqref{eq:mc_approx} yields a worst-case error rate of $\calO(n^{-1+\delta})$ with $\delta>0$ arbitrarily small. Some popular LD point sets are plotted in \Cref{fig:point sets} including lattices, digital nets (including higher-order versions), and Halton point sets.
 
 Randomized Quasi-Monte Carlo (RQMC) uses randomized LD point sets to give improved convergence rates and enable practical error estimation. Specifically, if we again assume the integrand has bounded variation, then certain RQMC methods can achieve a RMSE of $\calO(n^{-3/2+\delta})$. Moreover, let $\{\bx_i^1\}_{i=0}^{n-1}, \dots, \{\bx_i^R\}_{i=0}^{n-1}$ denote $R$ IID randomizations of a low-discrepancy point set where typically $R$ is small e.g. $R=15$. Then the RQMC estimate 
 \begin{equation}
     \hmu_R = \frac{1}{R} \sum_{r=1}^R \hat{\mu}^r \qquad \text{where} \quad \hat{\mu}^r = \frac{1}{n} \sum_{i=0}^{n-1} f(\bx_i^r)
     \label{eq:RQMC}
 \end{equation}
-may be used to construct a practical (approximate) $100(1-\tau)\%$ confidence interval $\hmu_R \pm t_{R-1,\tau/2} \hsigma_R/\sqrt{R}$ for $\mu$ where $\hsigma_R^2 = R^{-1}(R-1)^{-1} \sum_{r=1}^R (\hmu^r - \hmu_R)^2$ and $t_{R-1,\tau/2}$ is the $\tau/2$ quantile of a Student distribution with $R-1$ degrees of freedom. RQMC estimates are detailed in \citep[Chapter 17]{owen.mc_book}, and a recent comparison of RQMC confidence interval methods can be found in \citep{l2023confidence}.  QMC error estimation is treated more broadly in \citep{owen2024error}, while \citep{clancy2014cost,adaptive_qmc,clancy2014cost} detail additional considerations for adaptive QMC algorithms. For lattices, randomization is typically done using random shifts modulo $1$. For digital nets, randomization is typically done using nested uniform scrambling (NUS) or the cheaper combination of linear matrix scrambling (LMS) with digital shifts / permutations \citep{owen.variance_alternative_scrambles_digital_net,owen_halton,owen.gain_coefficients_scrambled_halton}.
+may be used to construct a practical (approximate) $100(1-\tau)\%$ confidence interval $\hmu_R \pm t_{R-1,\tau/2} \hsigma_R/\sqrt{R}$ for $\mu$ where $\hsigma_R^2 = R^{-1}(R-1)^{-1} \sum_{r=1}^R (\hmu^r - \hmu_R)^2$ and $t_{R-1,\tau/2}$ is the $\tau/2$ quantile of a Student distribution with $R-1$ degrees of freedom. RQMC estimates are detailed in \citep[Chapter 17]{owen.mc_book}, and a recent comparison of RQMC confidence interval methods can be found in \citep{l2023confidence}.  QMC error estimation is treated more broadly in \citep{owen2024error}, while \citep{clancy2014cost,adaptive_qmc} detail additional considerations for adaptive QMC algorithms. For lattices, randomization is typically done using random shifts modulo $1$. For digital nets, randomization is typically done using nested uniform scrambling (NUS) or the cheaper combination of linear matrix scrambling (LMS) with digital shifts / permutations \citep{MATOUSEK1998527,owen.variance_alternative_scrambles_digital_net,owen_halton,owen.gain_coefficients_scrambled_halton}.
 
-Higher-order LD point sets were designed to yield faster convergence for integrands with additional smoothness. For integrands with square integrable mixed partial derivatives up to order $\alpha>1$, plugging higher-order digital nets into $\hmu$ \eqref{eq:mc_approx} yields a worst-case error rate of $\calO(n^{-\alpha+\delta})$ \citep{dick.walsh_spaces_HO_nets,dick.qmc_HO_convergence_MCQMC2008,dick.decay_walsh_coefficients_smooth_functions}. RQMC using scrambled digital nets (via either NUS or LMS with digital permutations) combined with digital interlacing has been shown to achieve an RMSE of order $\calO(n^{-\alpha-1/2+\delta})$ \citep{dick.higher_order_scrambled_digital_nets}. %We show empirically that RQMC digital nets with LMS, digital shifts, and digital interlacing are significantly cheaper to generate than NUS point sets while still achieving the the optimal $\calO(n^{-\alpha-1/2+\delta})$ convergence rate. Higher-order digital nets with NUS and with LMS plus digital shifts are also shown in \cref{fig:point sets}.  
+Higher-order LD point sets were designed to yield faster convergence for integrands with additional smoothness. For integrands with square integrable mixed partial derivatives up to order $\alpha>1$, plugging higher-order digital nets into $\hmu$ \eqref{eq:mc_approx} yields a worst-case error rate of $\calO(n^{-\alpha+\delta})$ \citep{dick.walsh_spaces_HO_nets,dick.qmc_HO_convergence_MCQMC2008,dick.decay_walsh_coefficients_smooth_functions}. RQMC using scrambled digital nets (via either NUS or LMS with digital permutations) combined with digital interlacing has been shown to achieve an RMSE of order $\calO(n^{-\alpha-1/2+\delta})$ \citep{dick.higher_order_scrambled_digital_nets}. %We show empirically that RQMC digital nets with LMS, digital shifts, and digital interlacing are significantly cheaper to generate than NUS point sets while still achieving the the optimal $\calO(n^{-\alpha-1/2+\delta})$ convergence rate. Higher-order digital nets with NUS and with LMS plus digital shifts are also shown in \Cref{fig:point sets}.  
 
 % \textcolor{red}{High quality pseudo-random number generators (PRNGs) have been extensively developed \citep{lecuyer.random_number_generation_book}, and are readily available in nearly all popular programming languages. Generators and randomization routines for LD point sets have been generally less readily available than their PRNG counterparts. 
 % Notable exceptions include \texttt{LatNet Builder}\footnote{\url{https://github.com/umontreal-simul/latnetbuilder}} \citep{LatNetBuilder.software} and \texttt{QMCPy}\footnote{\url{https://qmcpy.readthedocs.io}} \citep{choi.QMC_software,choi.challenges_great_qmc_software}.  These softwares aggregate LD sequence generation routines and randomization algorithms from across the QMC landscape into unified frameworks, see the references therein. To the best of our knowledge, there are also the only softwares with readily available implementations of NUS and LMS randomizations for higher-order digital nets.}
@@ -182,14 +182,14 @@ Higher-order LD point sets were designed to yield faster convergence for integra
 
 \subsection{Kernel computations} 
 
-Low-discrepancy (LD) point sets can also been used to accelerated many kernel computations. Let $\{\bx_i\}_{i=0}^{n-1}$ be a point set, $K: [0,1]^d \times [0,1]^d \to \bbR$ be a symmetric positive definite (SPD) kernel, and $\mK = \left(K(\bx_i,\bx_k)\right)_{i,k=0}^{n-1}$ be the $n \times n$ SPD Gram matrix. Two motivating kernel computations are described below
+Low-discrepancy (LD) point sets have also been used to accelerated many kernel computations. Let $\{\bx_i\}_{i=0}^{n-1}$ be a point set, $K: [0,1]^d \times [0,1]^d \to \bbR$ be a symmetric positive definite (SPD) kernel, and $\mK = \left(K(\bx_i,\bx_k)\right)_{i,k=0}^{n-1}$ be the $n \times n$ SPD Gram matrix of kernel evaluations at all pairs of points. Two motivating kernel computations are described below
 
 \begin{description}
-    \item[Discrepancy Computation] The error of the Monte Carlo approximation \eqref{eq:mc_approx} can be bounded by the product two terms: a measure of variation of the function $f$ and a measure of the discrepancy of the point set $\{\bx_i\}_{i=1}^{n-1}$.  The most well known bound of this type is the Koksma-Hlawka inequality \citep{hickernell.generalized_discrepancy_quadrature_error_bound,dick.high_dim_integration_qmc_way,hickernell1999goodness,niederreiter.qmc_book}. The discrepancy is frequently computed when designing and evaluating low-discrepancy point sets, see \citep{rusch2024message} for a newer idea in this area where good point sets are generated using a neural networks trained with a discrepancy-based loss function.  
+    \item[Discrepancy Computation] The error of the approximation \eqref{eq:mc_approx} can be bounded by the product of two terms: a measure of variation of the function $f$ and a measure of the discrepancy of the point set $\{\bx_i\}_{i=0}^{n-1}$.  The most well known bound of this type is the Koksma-Hlawka inequality \citep{hickernell.generalized_discrepancy_quadrature_error_bound,dick.high_dim_integration_qmc_way,hickernell1999goodness,niederreiter.qmc_book}. The discrepancy is frequently computed when designing and evaluating low-discrepancy point sets, see \citep{rusch2024message} for a newer idea in this area where good point sets are generated using neural networks trained with a discrepancy-based loss function.  
     
-    Let us consider the more general setting of approximating the mean $\mu$ in \eqref{eq:mc_approx} by a weighted cubature rule $\sum_{i=0}^{n-1} \omega_i f(\bx_i)$. If $f$ is assumed to lie in the RKHS $H$, the discrepancy in the error bound of such a cubature rule takes the form
-    $$\int \int K(\bu,\bv) \D \bu \D \bv - 2 \sum_{i=0}^{n-1} \omega_i \int K(\bu,\bx_i) \D \bu + \sum_{i,k=0}^{n-1} \omega_i \omega_k K(\bx_i,\bx_k)$$
-    following \citep{hickernell.generalized_discrepancy_quadrature_error_bound}. Here the integrals are understood to be over the unit cube $[0,1]^d$. Evaluating this discrepancy above requires computing $\mK \bomega$ where $\bomega = \{\omega_i\}_{i=0}^{n-1}$. Moreover, the discrepancy is minimized for a given point set by setting the weights to $\bomega^\star = \mK^{-1} \bkappa$ where $\kappa_i = \int K(\bu,\bx_i) \D \bu$ for $0 \leq i < n$.
+    Let us consider the more general setting of approximating the mean $\mu$ in \eqref{eq:mc_approx} by a weighted cubature rule $\sum_{i=0}^{n-1} \omega_i f(\bx_i)$. If $f$ is assumed to lie in the RKHS $H$ with kernel $K$, the discrepancy in the error bound of such a cubature rule takes the form
+    $$\int_{[0,1]^d} \int_{[0,1]^d} K(\bu,\bv) \D \bu \D \bv - 2 \sum_{i=0}^{n-1} \omega_i \int_{[0,1]^d} K(\bu,\bx_i) \D \bu + \sum_{i,k=0}^{n-1} \omega_i \omega_k K(\bx_i,\bx_k)$$
+    following \citep{hickernell.generalized_discrepancy_quadrature_error_bound}. Evaluating the discrepancy above requires computing $\mK \bomega$ where $\bomega = \{\omega_i\}_{i=0}^{n-1}$. Moreover, this discrepancy is minimized for a given point set by setting the weights to $\bomega^\star = \mK^{-1} \bkappa$ where $\kappa_i = \int K(\bu,\bx_i) \D \bu$ for $0 \leq i < n$.
     \item[Kernel Interpolation] Suppose we would like to approximate $f: [0,1)^d \to \bbR$ given observations $\by = \{y_i\}_{i=0}^{n-1}$ of $f$ at $\{\bx_i\}_{i=0}^{n-1}$ satisfying $y_i = f(x_i)$. Then a kernel interpolant approximates $f$ by $\hf \in H$ where 
     $$\hf(\bx) = \sum_{i=0}^{n-1} \omega_i K(\bx,\bx_i)$$
     and $\bomega = \mK^{-1} \by$. The above kernel interpolant may be reinterpreted as the posterior mean in Gaussian process regression, see \citep{rasmussen.gp4ml}. Fitting a Gaussian process regression model often includes optimizing a kernel's hyperparameters, which also may be done by computing  $\mK \bomega$ and $\mK^{-1} \by$.  %Kernel interpolation, or Gaussian process regression \citep{rasmussen.gp4ml}, has recently been paired with LD sequences to accelerate Bayesian cubature \citep{rathinavel.bayesian_QMC_lattice,rathinavel.bayesian_QMC_sobol,rathinavel.bayesian_QMC_thesis} and solving PDEs with random coefficients \citep{kaarnioja.kernel_interpolants_lattice_rkhs,kaarnioja.kernel_interpolants_lattice_rkhs_serendipitous}. 
@@ -197,7 +197,7 @@ Low-discrepancy (LD) point sets can also been used to accelerated many kernel co
 
 Underlying these problems, and many others, is the requirement to compute the matrix-vector product $\mK \by$ or solve the linear system $\mK \boldsymbol{\omega} =\by$ for some length $n$ vector $\by$.
 %\FJHNote{And sometimes finding the eigenvector eigenvalue decompostion of the Gram matrix for hyperparameter optimization.} 
-The standard cost of these computations are $\calO(n^2)$ and $\calO(n^3)$ respectively. One method to reduce these high costs is to induce structure into $\mK$. Structure-inducing methods pairing lattices and digital nets with special kernels were proposed in \citep{zeng.spline_lattice_digital_net} and shown to reduce the cost of both computations to $\calO(n \log n)$. Specifically, when a lattice point set $\{\bx_i\}_{i=0}^{n-1}$ in linear order is paired with a shift-invariant kernel, $\mK$ becomes circulant and computations can be performed performed using the fast Fourier transforms (FFT) and inverse FFT (IFFT). Similarly, when a base $2$ digital net $\{\bx_i\}_{i=0}^{n-1}$ is paired with a digitally-shift-invariant kernel, $\mK$ becomes nested-block-Toeplitz and these computations can be performed using the Fast Walsh-Hadamard Transforms (FWHT) \citep{fino.fwht}. Such methods have recently been used to accelerate Bayesian cubature \citep{rathinavel.bayesian_QMC_lattice,rathinavel.bayesian_QMC_sobol,rathinavel.bayesian_QMC_thesis} and solving PDEs with random coefficients \citep{kaarnioja.kernel_interpolants_lattice_rkhs,kaarnioja.kernel_interpolants_lattice_rkhs_serendipitous}.
+The standard cost of these computations are $\calO(n^2)$ and $\calO(n^3)$ respectively. One method to reduce these high costs is to induce structure into $\mK$. Structure-inducing methods pairing lattices and digital nets with special kernels were proposed in \citep{zeng.spline_lattice_digital_net} and shown to reduce the cost of both computations to $\calO(n \log n)$. Specifically, when a lattice point set $\{\bx_i\}_{i=0}^{n-1}$ in linear order is paired with a shift-invariant kernel, $\mK$ becomes circulant and computations can be performed using the fast Fourier transform (FFT) and inverse fast Fourier transform (IFFT). Similarly, when a base $2$ digital net $\{\bx_i\}_{i=0}^{n-1}$ is paired with a digitally-shift-invariant kernel, $\mK$ becomes nested-block-Toeplitz and these computations can be performed using the fast Walsh-Hadamard transform (FWHT) \citep{fino.fwht}. Such methods have recently been used to accelerate Bayesian cubature \citep{rathinavel.bayesian_QMC_lattice,rathinavel.bayesian_QMC_sobol,rathinavel.bayesian_QMC_thesis} and solving PDEs with random coefficients \citep{kaarnioja.kernel_interpolants_lattice_rkhs,kaarnioja.kernel_interpolants_lattice_rkhs_serendipitous}.
 
 We provide novel methods which exploit past solutions to $\mK\by$ or $\mK^{-1}\by$ when doubling the sample size from the LD sequence. This requires lattices are generated in natural order so we do not need to reorder outputs after doubling the sample size. We show that the same speedups can be achieved for lattices in natural order using bit-reversed FFT and bit-reversed IFFT algorithms. These bit-reversed algorithms simply skip the initial and final bit-reversal steps in the decimation-in-time FFT and IFFT respectively. We provide implementations of the bit-reversed FFT, bit-reversed IFFT, and FWHT. 
 
@@ -207,7 +207,7 @@ Shift-invariant kernels of arbitrary smoothness are well known and can be comput
 
 %\tableofcontents
 
-The remainder of this article is organized as follows. First, we describe our implementation in \cref{sec:implementation}. \Cref{sec:notation} discusses notation. \Cref{sec:LD_seq_and_randomizations} details rank $1$ lattices, digital sequences, and Halton sequences along with their randomization routines. \Cref{sec:fast_transforms} describes accelerated kernel computation with LD sequences, matching kernels, and fast transform algorithms. \Cref{sec:numerical_experiments} provides numerical experiments. Finally, \cref{sec:conclusions_future_work} gives a brief conclusion and outlines directions for future work. 
+The remainder of this article is organized as follows. First, we describe our implementation in \Cref{sec:implementation}. \Cref{sec:notation} discusses notation. \Cref{sec:LD_seq_and_randomizations} details rank-1 lattices, digital sequences, and Halton sequences along with their randomization routines. \Cref{sec:fast_transforms} describes accelerated kernel computation with LD sequences, matching kernels, and fast transform algorithms. \Cref{sec:numerical_experiments} provides numerical experiments. Finally, \Cref{sec:conclusions_future_work} gives a brief conclusion and outlines directions for future work. 
 
 \section{Implementation} \label{sec:implementation}
 
@@ -219,20 +219,20 @@ Most of the \texttt{QMCPy} objects and methods presented here are wrappers aroun
 
 \section{Notation} \label{sec:notation}
 
-Bold symbols denote vectors which are assumed to be column vectors e.g. $\bx \in [0,1]^d$. Capital letters in serif font denote matrices e.g. $\mK \in \bbR^{n \times n}$. Lower case letters in serif font denote digits in a base $b$ expansion e.g. $i = \sum_{t=0}^{m-1} \mi_t b^t$ for $0 \leq i < 2^m$. This may be combined with bold notation when denoting the vector of base $b$ digits e.g. $\bmi = (\mi_0,\mi_1,\dots,\mi_{m-1})^\intercal$. Modulo is always taken component-wise e.g. $\bx \mod 1 = (x_1 \mod 1,\dots,x_d \mod 1)^\intercal$. Permutations may be specified by vectors e.g. $\pi: \{0,1,2\} \to \{0,1,2\}$ with $\pi(0) = 2$, $\pi(1) = 0$, and $\pi(2)=1$ may be denoted by $\pi = (2,0,1)$. 
+Bold symbols denote vectors which are assumed to be column vectors e.g. $\bx \in [0,1]^d$. Capital letters in serif font denote matrices e.g. $\mK \in \bbR^{n \times n}$. Lower case letters in serif font denote digits in a base $b$ expansion e.g. $i = \sum_{t=0}^{m-1} \mi_t b^t$ for $0 \leq i < 2^m$. This may be combined with bold notation when denoting the vector of base $b$ digits e.g. $\bmi = (\mi_0,\mi_1,\dots,\mi_{m-1})^\intercal$. Modulo is always taken component-wise, e.g., lattices will use the notation $\bx \mod 1 = (x_1 \mod 1,\dots,x_d \mod 1)^\intercal$ and digital nets will take all matrix operations to be carried modulo $b$. Permutations may be specified by vectors, e.g., $\pi: \{0,1,2\} \to \{0,1,2\}$ with $\pi(0) = 2$, $\pi(1) = 0$, and $\pi(2)=1$ may be denoted by $\pi = (2,0,1)$. 
 
 \section{Low-discrepancy sequences and randomization routines} \label{sec:LD_seq_and_randomizations}
 
 For a fixed base $b \in \bbN$, write $i \in \bbN_0$ as $i = \sum_{t=0}^\infty \mi_t b^t$ so $\mi_t$ is the $t^\mathrm{th}$ digit in the base $b$ expansion of $i$. We denote the vector of the first $m$ base $b$ digits of $i$ by
 $$\bD_m(i) = (\mi_0,\mi_1,\dots,\mi_{m-1})^\intercal.$$
-For $\bmi = \bD_m(i)$ we use the notation 
-$$F_m(\bmi) = \sum_{t=1}^m \mi_{t-1} b^{-t}$$
-to flip the digits of $i$ about the decimal and convert back to a floating point number in $[0,1)$. Finally, let
+For $\bmi = \bD_m(i)$, we denote the radical inverse of $i$ by
+$$F_m(\bmi) = \sum_{t=1}^m \mi_{t-1} b^{-t} \in [0,1)$$
+Finally, let
 \begin{equation}
     v(i) = \sum_{t=1}^\infty \mi_{t-1} b^{-t}
     \label{eq:v}
 \end{equation}
-so that $v(i) = F_m(\bD_m(i))$ when $i < b^m$, which is always the case in this article. The Van der Corput sequence in base $b$ is $(v(i))_{i \geq 0}$.
+so that $v(i) = F_m(\bD_m(i))$ when $i < b^m$, which is always the case in this article. The van der Corput sequence in base $b$ is $(v(i))_{i \geq 0}$.
 
 \begin{figure}%[H]
     \centering
@@ -368,49 +368,47 @@ so that $v(i) = F_m(\bD_m(i))$ when $i < b^m$, which is always the case in this 
         \draw[->] (\axsep,\scale*17/18) -- (2*\axsep,\scale*13/18);
     \end{tikzpicture}
     \end{subfigure}
-    \caption{Low-discrepancy randomization routines in dimension $d=1$. Each vertical line is a unit interval with $0$ at the bottom and $1$ at the top. A given interval is partitioned at the horizontal ticks extending to the right, and then rearranged following the arrows to create the partition of the right interval as shown by the ticks extending to the left. For the shifted lattice and digitally shifted digital net, when the arrow hits a horizontal gray bar it is wrapped around to the next gray bar below. See for example the dotted line in the shifted digital net. The lattice shift is $\Delta = \thisDelta$. All digital nets use base $b=3$ and $t_\mathrm{max}=2$ digits of precision. The digital shift is $\bDelta = (2,1)^\intercal$. Dropping the $j$ subscript for dimension, the digital permutations in the third panel are $\pi_1 = (2,0,1)$ and $\pi_2 = (2,1,0)$. Notice $\pi_1$ is equivalent to a digital shift by $2$, but $\pi_2$ cannot be written as a digital shift. The nested uniform scramble (NUS) has digital permutations $\pi = (2,0,1)$, $\pi_0 = (2,1,0)$, $\pi_1 = (0,1,2)$, and $\pi_2 = (1,2,0)$. Notice the permuted digital net in third panel has permutations depending only the current digit in the base $b$ expansion. In contrast, the full NUS scrambling in the fourth panel has permutations which depend on all previous digits in the base $b$ expansion.}
+    \caption{Low-discrepancy randomization routines in dimension $d=1$. Each vertical line is a unit interval with $0$ at the bottom and $1$ at the top. A given interval is partitioned at the horizontal ticks extending to the right, and then rearranged following the arrows to create the partition of the right interval as shown by the ticks extending to the left. For the shifted lattice and digitally shifted digital net, when the arrow hits a horizontal gray bar it is wrapped around to the next gray bar below. See for example the dotted line in the shifted digital net. The lattice shift is $\Delta = \thisDelta$. All digital nets use base $b=3$ and $t_\mathrm{max}=2$ digits of precision. The digital shift is $\bDelta = (2,1)^\intercal$. Dropping the $j$ subscript for dimension, the digital permutations in the third panel are $\pi_1 = (2,0,1)$ and $\pi_2 = (2,1,0)$. Notice $\pi_1$ is equivalent to a digital shift by $2$, but $\pi_2$ cannot be written as a digital shift. The nested uniform scramble (NUS) has digital permutations $\pi = (2,0,1)$, $\pi_0 = (2,1,0)$, $\pi_1 = (0,1,2)$, and $\pi_2 = (1,2,0)$. Notice the permuted digital net in third panel has permutations depending only on the current digit in the base $b$ expansion. In contrast, the full NUS scrambling in the fourth panel has permutations which depend on all previous digits in the base $b$ expansion.}
     \label{fig:ld_randomizations}
 \end{figure}  
 
-\subsection{Rank 1 lattices}
+\subsection{Rank-1 lattices}
 
 Consider a fixed \emph{generating vector} $\bg \in \bbN^d$ and fixed prime base $b$. Then we define the \emph{lattice sequence} 
 $$\bz_i = v(i) \bg \mod 1, \qquad i \geq 0.$$
-If $n=b^m$ for some $m \in \bbN_0$, then the lattice point set $\{\bz_i\}_{i=0}^{n-1}\in [0,1)^{n \times d}$ is equivalent to $\{i/n \bg \mod 1\}_{i=0}^{n-1}$ where we say the former is in \emph{natural order} while the latter is in \emph{linear order}. 
+If $n=b^m$ for some $m \in \bbN_0$, then the lattice point set $\{\bz_i\}_{i=0}^{n-1}\in [0,1)^{n \times d}$ is equivalent to $\{\bg i/n \mod 1\}_{i=0}^{n-1}$ where we say the former is in \emph{natural order} while the latter is in \emph{linear order}. When $n$ is not of the form $b^m$, then linear and natural order will not generate the same lattice point set. 
 
 \begin{description}
     \item[Shifted lattice] For a shift $\bDelta \in [0,1)^d$, we define the shifted point set 
     $$\bx_i= (\bz_i + \bDelta) \mod 1$$ 
 \end{description}
-where $\bz_i$ are lattice point set. The shift operation mod 1 is visualized in \cref{fig:ld_randomizations}. Randomized lattices use $\bDelta \sim \calU[0,1]^d$. In the following code snippet we generate $R$ independently shifted lattices with shifts $\bDelta_1,\dots,\bDelta_R \simiid \calU[0,1]^d$. 
+where $\bz_i$ are lattice point set. The shift operation mod 1 is visualized in \Cref{fig:ld_randomizations}. Randomized lattices use $\bDelta \sim \calU[0,1]^d$. In the following code snippet we generate $R$ independently shifted lattices with shifts $\bDelta_1,\dots,\bDelta_R \simiid \calU[0,1]^d$. 
 \lstinputlisting[style=Python]{snippets/lattice.txt}
 Here we have used a generating vector from \citep{cools2006constructing} which is stored in a standardized format in the \texttt{LDData} repository. Other generating vectors from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/tree/main/lattice/} or by passing an explicit array. 
 
-
 \subsection{Digital nets} 
 
-Consider a fixed prime base $b$ and \emph{generating matrices} $\mC_1,\dots\mC_d \in \{0,...,b-1\}^{t_\mathrm{max} \times m}$ where $m \in \bbN$ is fixed and $b$ is a given prime base. One may relax the assumption that $b$ is prime, but we do not consider that here or in the implementation. The first $n=b^m$ points of a digital sequence form a \emph{digital net} $\{\bz_i\}_{i=1}^{b^m-1} \in [0,1)^{b^m \times d}$ in \emph{natural order}. For $1 \leq j \leq d$ and $0 \leq i < b^m$ with digits $\bmi = \bD_m(i)$,
-$$\bmz_{ij} = \mC_j \bmi \mod b \qquad\text{and}\qquad z_{ij} = F_{t_\mathrm{max}}(\bmz_{ij})$$
-where $\bmz_{ij}$ is the base $b$ expansion vector of $z_{ij}$. 
+Consider a fixed prime base $b$ and \emph{generating matrices} $\mC_1,\dots\mC_d \in \{0,...,b-1\}^{t_\mathrm{max} \times m}$ where $t_\mathrm{max},m \in \bbN$ are fixed and $b$ is a given prime base. One may relax the assumption that $b$ is prime, but we do not consider that here or in the implementation. The first $n=b^m$ points of a digital sequence form a \emph{digital net} $\{\bz_i\}_{i=0}^{b^m-1} \in [0,1)^{b^m \times d}$ where, in \emph{natural order}, for $1 \leq j \leq d$ and $0 \leq i < b^m$ with base $b$ digit vector $\bmi = \bD_m(i)$, 
+$$\bmz_{ij} = \mC_j \bmi \mod b \qquad\text{so that}\qquad z_{ij} = F_{t_\mathrm{max}}(\bmz_{ij}).$$
 
 \begin{description}
     \item[Digitally shifted digital net] Similar to lattices, one may apply a shift $\mDelta \in [0,1)^{t_\mathrm{max} \times d}$ to the digital net to get a digitally-shifted digital net $\{\bx_i\}_{i=0}^{b^m-1}$ where 
     $$x_{ij} = F_{t_\mathrm{max}}((\bmz_{ij} + \bDelta_j ) \mod b)$$
     and $\bDelta_j$ is the $j^\mathrm{th}$ column of $\mDelta$. Randomly shifted digital nets use $\mDelta \simiid \calU\{0,\dots,b-1\}^{t_\mathrm{max} \times d}$ i.e. is each digit is chosen uniformly from $\{0,\dots,b-1\}$. 
-    \item[Digitally permuted digital net] In what follows will denote permutations of $\{0,\dots,b-1\}$ by $\pi$. Suppose we are given a set of permutations
+    \item[Digitally permuted digital net] In what follows we will denote permutations of $\{0,\dots,b-1\}$ by $\pi$. Suppose we are given a set of permutations
     $$\mPi = \{\pi_{j,t}: \quad 1 \leq j \leq d, \quad 0 \leq t < t_\mathrm{max}\}.$$
-    Then we may construct the digitally permuted digital net $\{\bx_i\}_{i=1}^{b^m-1}$ where 
+    Then we may construct the digitally permuted digital net $\{\bx_i\}_{i=0}^{b^m-1}$ where 
     $$x_{ij} = F_{t_\mathrm{max}}((\pi_{j,0}(\mz_{ij0}),\pi_{j,1}(\mz_{ij1}),\dots,\pi_{j,t_\mathrm{max}-1}(\mz_{ij(t_\mathrm{max}-1)}))^\intercal).$$
     Randomly permuted digital nets use independent permutations chosen uniformly over all permutations of $\{0,\dots,b-1\}$. 
-    \item[Nested Uniform Scrambling (NUS)] NUS is often called Owen scrambling for its conception in \citep{owen1995randomly}. As before, $\pi$ values denote permutations of $\{0,\dots,b-1\}$. Now suppose we are given a set of permutations 
+    \item[Nested Uniform Scrambling (NUS)] NUS is often called Owen scrambling for its conception in \citep{owen1995randomly}. As before, $\pi$ denotes permutations of $\{0,\dots,b-1\}$. Now suppose we are given a set of permutations 
     $$\calP = \{\pi_{j,\mv_1\cdots\mv_t}: \quad 1 \leq j \leq d, \quad 0 \leq t < t_\mathrm{max}, \quad \mv_k \in \{0,\dots,b-1\} \text{ for } 0 \leq k \leq t \}.$$
-    Then a \emph{nested uniform scrambling} of a digital net is $\{\bx_i\}_{i=1}^{b^m-1}$ where
+    Then a \emph{nested uniform scrambling} of a digital net is $\{\bx_i\}_{i=0}^{b^m-1}$ where
     $$x_{ij} = F_{t_\mathrm{max}}((\pi_{j,}(\mz_{ij0}),\pi_{j,\mz_{ij0}}(\mz_{ij1}),\pi_{j,\mz_{ij0}\mz_{ij1}}(\mz_{ij2}),\dots,\pi_{j,\mz_{ij0}\mz_{ij1}\cdots\mz_{ij(t_\mathrm{max}-2)}}(\mz_{ij(t_\mathrm{max}-1)}))^\intercal).$$ 
     As the number of elements in $\calP$ is  
     $$\lvert \calP \rvert = d(1+b+b^2+\dots+b^{t_\mathrm{max}-1}) = d \frac{b^{t_\mathrm{max}}-1}{b-1},$$ 
-    our implementation cannot afford to generated all permutations apriori. Instead, permutations are generated and stored only as needed. As with digitally-permuted digital nets, NUS uses independent uniform random permutations.  
+    our implementation cannot afford to generate all permutations a priori. Instead, permutations are generated and stored only as needed. As with digitally-permuted digital nets, NUS uses independent uniform random permutations.  
 \end{description}
-The randomization routines described above are visualized in \cref{fig:ld_randomizations}. 
+The randomization routines described above are visualized in \Cref{fig:ld_randomizations}. 
 
 \emph{Linear matrix scrambling} (LMS) is a computationally cheaper but less complete version of NUS which has proven sufficient for many practical problems. LMS uses scrambling matrices $\mS_1,\dots,\mS_d \in \{0,\dots,b\}^{t_\mathrm{max} \times t_\mathrm{max}}$ and sets the LMS generating matrices $\tmC_1,\dots,\tmC_d \in \{0,\dots,b\}^{t_\mathrm{max} \times m}$ so that 
 $$\tmC_j = \mS_j \mC_j \mod b$$
@@ -418,14 +416,14 @@ for $j=1,\dots,d$. Following \citep{owen.variance_alternative_scrambles_digital_
 $$\begin{pmatrix} h_{11} & 0 & 0 & 0 & \dots \\ g_{21} & h_{22} & 0 & 0 & \dots \\ g_{31} & g_{32} & h_{33} & 0 & \dots \\ g_{41} & g_{42} & g_{43} & h_{44} & \dots \\ \vdots & \vdots & \vdots & \vdots & \ddots \end{pmatrix}, \begin{pmatrix} h_1 & 0 & 0 & 0 & \dots \\ g_2 & h_1 & 0 & 0 & \dots \\ g_3 & g_2 & h_1 & 0 & \dots \\ g_4 & g_3 & g_2 & h_1 & \dots \\ \vdots & \vdots & \vdots & \vdots & \ddots \end{pmatrix}, \quad\text{and}\quad \begin{pmatrix} h_1 & 0 & 0 & 0 & \dots \\ h_1 & h_2 & 0 & 0 & \dots \\ h_1 & h_2 & h_3 & 0 & \dots \\ h_1 & h_2 & h_3 & h_4 & \dots \\ \vdots & \vdots & \vdots & \vdots & \ddots \end{pmatrix}$$
 which corresponds to Matousek’s linear scrambling \citep{MATOUSEK1998527}, Tezuka's $i$-binomial scrambling \citep{tezuka2002randomization}, and Owen's striped LMS \citep{owen.variance_alternative_scrambles_digital_net} (not to be confused with NUS which is often called Owen scrambling). Random LMS chooses $g$ and $h$ values all independently and uniformly from $\{1,\dots,b\}$ and $\{0,\dots,b-1\}$ respectively. These scrambling are described in more detail and connected to NUS in \citep{owen.variance_alternative_scrambles_digital_net}.
 
-\emph{Digital interlacing} enables the construction of higher-order digital nets. Denote the digitally interlaced version of $\mC_1,\mC_2,\dots \in \{0,\dots,b\}^{t_\mathrm{max} \times m}$ with interlacing factor $\alpha \in \bbN$ by $\tmC_1,\tmC_2,\dots \in \{0,\dots,b\}^{\alpha t_\mathrm{max} \times m}$. Then we have $\tmC_{jtk} = C_{\tj,\tt,k}$ where $\tj = \alpha (j-1) + (t \mod \alpha) + 1$ and $\tt = \lfloor t / \alpha \rfloor$ for $j \geq 1$ and $0 \leq t < \alpha t_\mathrm{max}$ and $1 \leq k \leq m$. For example, with $m=2$, $t_\mathrm{max}=2$, and $\alpha=2$ we have the following 
-$$\mC_1 = \begin{pmatrix} c_{101} & c_{102} \\ c_{111} & c_{112} \end{pmatrix} \qquad \mC_2 = \begin{pmatrix} c_{201} & c_{202} \\ c_{211} & c_{212} \end{pmatrix} \qquad \mC_3 = \begin{pmatrix} c_{301} & c_{302} \\ c_{311} & c_{312} \end{pmatrix} \qquad \mC_4 = \begin{pmatrix} c_{401} & c_{402} \\ c_{411} & c_{412} \end{pmatrix} \qquad \dots$$
-$$\tmC_1 = \begin{pmatrix} c_{101} & c_{102} \\ c_{201} & c_{202} \\ c_{111} & c_{112} \\ c_{211} & c_{212} \end{pmatrix} \qquad \tmC_2 = \begin{pmatrix} c_{301} & c_{302} \\ c_{401} & c_{402} \\ c_{311} & c_{312} \\ c_{411} & c_{412}\end{pmatrix} \qquad \dots$$
-Higher-order NUS requires NUS be applied to the digital net point sets generated by $\mC_1,\dots,\mC_{\alpha d}$ and then interlacing be performed to the digits $\{\bmz_{i1}\}_{i=0}^{b^m-1},\dots,\{\bmz_{i,\alpha d}\}_{i=0}^{b^m-1}$ \citep{dick.higher_order_scrambled_digital_nets}. For higher-order LMS, we apply LMS to the generating matrices $\mC_1,\dots,\mC_{\alpha d}$, then interlace them, then generate the digital net. As we shown in the numerical experiments in \cref{sec:numerical_experiments}, LMS is significantly faster than NUS (especially for higher-order nets) while still achieving higher-order rates of RMSE convergence. 
+\emph{Digital interlacing} enables the construction of higher-order digital nets. For integer order $\alpha \geq 1$, interlacing $\mA_1,\mA_2,\dots \in \{0,\dots,b\}^{t_\mathrm{max} \times m}$ gives $\tmA_1,\tmA_2,\dots \in \{0,\dots,b\}^{\alpha t_\mathrm{max} \times m}$ satisfying $\tmA_{jtk} = A_{\tj,\tt,k}$ where $\tj = \alpha (j-1) + (t \mod \alpha) + 1$ and $\tt = \lfloor t / \alpha \rfloor$ for $j \geq 1$ and $0 \leq t < \alpha t_\mathrm{max}$ and $1 \leq k \leq m$. For example, with $m=2$, $t_\mathrm{max}=2$, and $\alpha=2$ we have
+$$\mA_1 = \begin{pmatrix} a_{101} & a_{102} \\ a_{111} & a_{112} \end{pmatrix} \qquad \mA_2 = \begin{pmatrix} a_{201} & a_{202} \\ a_{211} & a_{212} \end{pmatrix} \qquad \mA_3 = \begin{pmatrix} a_{301} & a_{302} \\ a_{311} & a_{312} \end{pmatrix} \qquad \mA_4 = \begin{pmatrix} a_{401} & a_{402} \\ a_{411} & a_{412} \end{pmatrix} \qquad \dots$$
+$$\tmA_1 = \begin{pmatrix} a_{101} & a_{102} \\ a_{201} & a_{202} \\ a_{111} & a_{112} \\ a_{211} & a_{212} \end{pmatrix} \qquad \tmA_2 = \begin{pmatrix} a_{301} & a_{302} \\ a_{401} & a_{402} \\ a_{311} & a_{312} \\ a_{411} & a_{412}\end{pmatrix} \qquad \dots$$
+Without scrambling, higher-order digital nets are constructed using interlaced generating matrices $\tmC_1,\dots,\tmC_d$. Higher-order NUS \citep{dick.higher_order_scrambled_digital_nets} requires NUS be applied to the digital net point sets generated by $\mC_1,\dots,\mC_{\alpha d}$ and then the resulting digit matrices $\{\bmz_{i1}^\intercal\}_{i=0}^{b^m-1},\dots,\{\bmz_{i,\alpha d}^\intercal\}_{i=0}^{b^m-1} \in \{0,\dots,b\}^{t_\mathrm{max} \times m}$ be interlaced. For higher-order LMS, we apply LMS to the generating matrices $\mC_1,\dots,\mC_{\alpha d}$, then interlace them, then generate the digital net. As we shown in the numerical experiments in \Cref{sec:numerical_experiments}, LMS is significantly faster than NUS (especially for higher-order nets) while still achieving higher-order rates of RMSE convergence. 
 
 A subtle difference between the above presentation and practical implementation is that $t_\mathrm{max}$ may change with randomization in practice. For example, suppose we are given generating matrices $\mC_1,\dots,\mC_d \in \{0,\dots,b-1\}^{32 \times32}$ but would like the shifted digital net to have $64$ digits of precision. Then we should generate $\bDelta \in \{0,\dots,b-1\}^{t_\mathrm{max} \times d}$ with $t_\mathrm{max}=64$ and treat $\mC_j$ as $t_\mathrm{max} \times t_\mathrm{max}$ matrices with appropriate rows and columns zeroed out. 
 
-Gray code ordering of digital nets enables computing the next point $\bx_{i+1}$ from $\bx_i$ by only adding a single column from each generating matrix rather. Specifically, the $q^\mathrm{th}$ column of each generating matrix gets digitally added to the previous point where $q-1$ is the index of the only digit to be changed in Gray code ordering. Gray code orderings for $b=2$ and $b=3$ are shown in \cref{tab:Gray code}. 
+Gray code ordering of digital nets enables computing the next point $\bx_{i+1}$ from $\bx_i$ by only adding a single column from each generating matrix. Specifically, the $q^\mathrm{th}$ column of each generating matrix gets digitally added to the previous point where $q-1$ is the index of the only digit to be changed in Gray code ordering. Gray code orderings for $b=2$ and $b=3$ are shown in \Cref{tab:Gray code}. 
 
 \begin{table}[H]
     \centering
@@ -446,30 +444,30 @@ Gray code ordering of digital nets enables computing the next point $\bx_{i+1}$ 
     \label{tab:Gray code} 
 \end{table}
 
-The following code generates a base $2$ digital net with $R$ independent LMS, $R$ independent digital shifts, and $\alpha=2$ interlacing. 
+The following code generates $\alpha=2$ higher-order digital nets in base $2$ with  $R$ independent LMS and digital shift combinations. 
 \lstinputlisting[style=Python]{snippets/dnb2.txt}
 Here we have used a set of Sobol' generating matrices from Joe and Kuo\footnote{the ``new-joe-kuo-6.21201'' direction numbers from \url{https://web.maths.unsw.edu.au/~fkuo/sobol/index.html}} \citep{joe2008constructing} which are stored in a standardized format in the \texttt{LDData} repository. Other generating matrices from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/blob/main/dnet/} or by passing an explicit array. 
 
 \subsection{Halton sequences}
 
-The digital sequences described in the previous section used a fix prime base $b$. One may allow each dimension $j \in \{1,\dots,d\}$ to have its own prime base $b_j$. The most popular of such constructions is the Halton sequence which sets $b_j$ to the $j^\mathrm{th}$ prime, sets $\mC_j$ to the identity matrix, and sets $t_\mathrm{max} = m$. This enables the simplified construction of Halton points $\{\bx_i\}_{i=0}^{n-1}$ via
+The digital sequences described in the previous section used a fixed prime base $b$. One may allow each dimension $j \in \{1,\dots,d\}$ to have its own prime base $b_j$. The most popular of such constructions is the Halton sequence which sets $b_j$ to the $j^\mathrm{th}$ prime, sets $\mC_j$ to the identity matrix, and sets $t_\mathrm{max} = m$. This enables the simplified construction of Halton points $\{\bx_i\}_{i=0}^{n-1}$ via
 $$\bx_i = (v_{b_1}(i),\dots,v_{b_d}(i))^\intercal$$
 where we have added a subscript to $v$ in \eqref{eq:v} to denote the base dependence. 
 
 Almost all the methods described for digital sequences are immediately applicable to Halton sequences after accounting for the differing bases across dimensions. However, digital interlacing is not generally applicable when the bases differ. Halton with random starting points has also been explored in \citep{wang2000randomized}, although we do not consider this here.
 %Our implementation is separated into base $b=2$ digital nets and generalized digital nets. This is done because base $b=2$ digital nets can store columns of generating matrices as integers and then quickly perform digital addition using exclusive or (XOR) instructions. \texttt{QMCPy} currently only supports Halton point sets, although this is a topic for future work. 
-The following code generates a Halton point set with $R$ independent LMS and $R$ independent digital permutations.
+The following code generates a Halton point set with $R$ independent LMS and digital permutation combinations. Specifically, we generate $R$ independent LMS-Halton point sets and then apply an independent permutation scramble to each.
 \lstinputlisting[style=Python]{snippets/halton.txt}
 The \texttt{QRNG} randomization follows the QRNG software package \citep{qrng.software} in generating a generalized Halton point set \citep{faure2009generalized} using a deterministic set of  permutation scrambles and random digital shifts. 
 
 \section{Fast transforms and kernel computations} \label{sec:fast_transforms}
 
-Recall from the introduction that we would like to compute the matrix-vector product $\mK \by$ and solve the linear system $\mK^{-1} \by$ where $\by$ is some known length $n$ vector and $\mK = \{K(\bx_i,\bx_k)\}_{i,k=0}^{n-1}$ is a $n \times n$ symmetric positive definite (SPD) Gram matrix based on an SPD kernel $K$ and point set $\{\bx_i\}_{i=0}^{n-1}$. We may reduce the standard $\calO(n^2)$ and $\calO(n^3)$ costs of solving these respective problems to both be $\calO(n \log n)$ by inducing structure into $\mK$ using special point set-kernel pairings. Specifically, pairing lattice points with a shift invariance kernel yields a circulant Gram matrix $\mK$ for which computations can be done quickly using the bit-reversed fast Fourier transform (FFT) and bit-reversed inverse FFT (IFFT). Similarly, pairing a digital net with digitally-shift-invariant kernel yields a nested block Toeplitz matrix for which computations can be done quickly using the fast Walsh Hadamard Transform (FWHT). Shift-invariant and digitally-shift-invariant kernels are shown in \cref{fig:SI_DSI_kernels}. The reduced costs achieved by inducing these structures are summarized in \cref{tab:com_kernel_costs}.
+Recall from the introduction that we would like to compute the matrix-vector product $\mK \by$ and solve the linear system $\mK^{-1} \by$ where $\by$ is some known length $n$ vector and $\mK = \{K(\bx_i,\bx_k)\}_{i,k=0}^{n-1}$ is a $n \times n$ symmetric positive definite (SPD) Gram matrix based on an SPD kernel $K$ and point set $\{\bx_i\}_{i=0}^{n-1}$. We may reduce the standard $\calO(n^2)$ and $\calO(n^3)$ costs of solving these respective problems to both be $\calO(n \log n)$ by inducing structure into $\mK$ using special point set-kernel pairings. Specifically, pairing lattice points with a shift invariance kernel yields a circulant Gram matrix $\mK$ for which computations can be done quickly using the bit-reversed fast Fourier transform (FFT) and bit-reversed inverse FFT (IFFT). Similarly, pairing a digital net with digitally-shift-invariant kernel yields a nested block Toeplitz matrix for which computations can be done quickly using the fast Walsh Hadamard Transform (FWHT). Shift-invariant and digitally-shift-invariant kernels are shown in \Cref{fig:SI_DSI_kernels}. The reduced costs achieved by inducing these structures are summarized in \Cref{tab:com_kernel_costs}.
 
 \begin{figure}%[H]
     \centering
     %\includegraphics[width=1\textwidth]{./figs/kernels.eps}
-    \caption{Shift-invariant kernels (top row) and digitally-shift-invariant kernels (bottom row). Here $\alpha$ denotes the smoothness of the kernel. The $\alpha=3$ and $\alpha=4$ digitally-shift-invariant kernels are nearly indistinguishable. Shift-invariant kernels are described in \cref{subsec:SI_kernels} while digitally-shift-invariant kernels are described in \cref{subsec:DSI_kernels}.}
+    \caption{Shift-invariant kernels (top row) and digitally-shift-invariant kernels (bottom row). Here $\alpha$ denotes the smoothness of the kernel. The $\alpha=3$ and $\alpha=4$ digitally-shift-invariant kernels are nearly indistinguishable. Shift-invariant kernels are described in \Cref{subsec:SI_kernels} while digitally-shift-invariant kernels are described in \Cref{subsec:DSI_kernels}.}
     \Description[]{}
     \label{fig:SI_DSI_kernels}
 \end{figure}
@@ -487,11 +485,11 @@ Recall from the introduction that we would like to compute the matrix-vector pro
     \label{tab:com_kernel_costs}
 \end{table}
 
-The following code can be used to construct a Gram matrix with a lattice point set and shift-invariant kernel. The Gram matrix is then used perform matrix-vector multiplication and solve a linear system. Analogous code using \texttt{qp.DigitalNetB2}, \texttt{qp.KernelDigShiftInvar}, and \texttt{qp.FastGramMatrixDigitalNetB2} is also supported. 
+The following code can be used to construct a Gram matrix with a lattice point set and shift-invariant kernel. The Gram matrix is then used to perform matrix-vector multiplication and solve a linear system. Analogous code using \texttt{qp.DigitalNetB2}, \texttt{qp.KernelDigShiftInvar}, and \texttt{qp.FastGramMatrixDigitalNetB2} is also supported. 
 
 \lstinputlisting[style=Python]{snippets/kernel_methods.txt}
 
-Schematics of the bit-reversed FFT and FWHT underlying these fast computations are shown in \cref{fig:fast_transforms}. The one-dimensional bit-reversed FFT, one-dimensional bit-reversed IFFT, and one-dimensional FWHT are implemented into the \texttt{QMCPy} functions \texttt{qp.fftbr}, \texttt{qp.ifftbr}, and \texttt{qp.fwht} respectively. These fast transforms act along the last dimension which is required to to have length $2^m$ for some $m \geq 0$.  The following subsections detail the matching point set-kernel pairings and provide methods to quickly update the Gram matrix product or linear system solution after doubling the point size.
+Schematics of the bit-reversed FFT and FWHT underlying these fast computations are shown in \Cref{fig:fast_transforms}. The one-dimensional bit-reversed FFT, one-dimensional bit-reversed IFFT, and one-dimensional FWHT are implemented into the \texttt{QMCPy} functions \texttt{qp.fftbr}, \texttt{qp.ifftbr}, and \texttt{qp.fwht} respectively. These fast transforms act along the last dimension which is required to to have length $2^m$ for some $m \geq 0$.  The following subsections detail the matching point set-kernel pairings and provide methods to quickly update the Gram matrix product or linear system solution after doubling the point size.
 
 \begin{figure}%[H]
     \centering
@@ -721,7 +719,7 @@ for some $\tK$.
 Suppose $n =b^m$ for some $m \in \bbN_0$ and let $\{\bx_i\}_{i=0}^{b^m-1}$ be a digitally shifted digital net in natural order (possibly of higher order and/or with LMS). Following \cite[Theorem 5.3.1,Theorem 5.3.2]{rathinavel.bayesian_QMC_sobol}, for $b=2$, the Gram matrix $\mK$ is \emph{nested block Toeplitz} which implies the eigendecomposition
 $$\mK = \frac{1}{n} \mH^{(m)} \mLambda^{(m)} \mH^{(m)}$$ where $\mH^{(m)}$ is the $2^m \times 2^m$ Hadamard matrix defined by $\mH^{(0)} = (1)$ and the relationship 
 $$\mH^{(m+1)} = \begin{pmatrix} \mH^{(m)} & \mH^{(m)} \\ \mH^{(m)} & - \mH^{(m)} \end{pmatrix}.$$
-Multiplying by $\mH^{(m)}$ can be done at at $\calO(n \log n)$ cost using the FWHT. 
+Multiplying by $\mH^{(m)}$ can be done at $\calO(n \log n)$ cost using the FWHT. 
 % notice that for $q \in \bbN_0, p \in \{0,\dots,b-1\}$ and any $0 \leq i,k < b^q$ we have  
 % $$K(\bx_{i+pb^q},\bx_{k+pb^q}) = \tK((p\bc_{q+1} \oplus \bx_i) \ominus (p \bc_{q+1} \oplus \bx_k))= \tK(\bx_i \ominus \bz_x) = K(\bx_i,\bx_k).$$
 % Note that the above does not generally hold for permuted or NUS digital nets. To see this, consider $b=5$ and $d=1$ with 
@@ -731,29 +729,30 @@ Note that $\mK$ is not necessarily nested block Toeplitz under NUS. %To see this
 %$$\mC_1 = \begin{pmatrix} 1 & 1 & 1 \\ 0 & 1 & 1 \\ 0 & 0 & 1 \end{pmatrix}.$$
 %Then for $q=2$ and $p=1$ we have $z_2 = .110_2$ and $z_3 = .010_2$ while $z_6 = .001_2$ and $z_7 = .101_2$. A valid NUS may set $x_2 = .110_2$ and $x_3 = .010_2$ while $x_6 = .000_2$ and $x_7 = .101_2$. Then $x_3 \ominus x_2 = .100_2$ while $x_7 \ominus x_6 = 101_2$.
 
-We now describe one dimensional digitally-shift-invariant kernels $K(u,v) = \tK(u \ominus v)$ of higher-order smoothness $\alpha$. Weighted sums over products these one dimensional kernels may be used to construct higher-dimensional kernels e.g. those with product weights 
+We now describe one dimensional digitally-shift-invariant kernels $K(u,v) = \tK(u \ominus v)$ of higher-order smoothness $\alpha \geq 2$. Weighted sums over products these one dimensional kernels may be used to construct higher-dimensional kernels e.g. those with product weights 
 $$K(\bu,\bv) = \prod_{j=1}^d \left(1+\gamma_j  \left(K(u_j,v_j)-1\right)\right).$$
 To begin, let us write $k \in \bbN_0$ as $k = \sum_{\ell=1}^{\#k} \mk_{a_\ell} b^{a_\ell}$ where $a_1 > \cdots > a_{\#k} \geq 0$ are the $\#k$ indices of non-zero digits $\mk_{a_\ell} \in \{1,\dots,b-1\}$ in the base $b$ expansion of $k$. Then the $k^\mathrm{th}$ Walsh coefficient is 
 $$\wal_k(x) = e^{2 \pi \sqrt{-1}/b \sum_{\ell=1}^{\#k} \mk_{a_\ell} \mx_{a_\ell+1}}.$$ 
 For $\alpha \in \bbN$ we also define the weight function 
 $$\mu_\alpha(k) = \sum_{\ell=1}^{\min\{\alpha,\#k\}} (a_\ell+1).$$
-For $\alpha>1$, let the digitally-shift-invariant kernel 
+For $\alpha \geq 2$, let the digitally-shift-invariant kernel 
 \begin{equation}
     K(x,z) = \sum_{k \in \bbN_0} \frac{\wal_k(x \ominus z)}{b^{\mu_\alpha(k)}} = \tK_\alpha(x \ominus z)
     \label{eq:DSI_kernel}
 \end{equation}
 have corresponding RKHS $\tH_\alpha$. The following theorem shows $\tH_\alpha$ contains smooth functions. The case when $\alpha=1$ is treated separately in \citep{dick.multivariate_integraion_sobolev_spaces_digital_nets}.   
 \begin{theorem} \label{thm:RKHS_DSI_contain}
-    $\tH_\alpha \supset H_\alpha$ where $H_\alpha$ is an RKHS with inner product 
+    Let $H_\alpha$ denote the RKHS with inner product 
     $$\langle f,g \rangle_{H_\alpha} =\sum_{l=1}^{\alpha-1} \int_0^1 f^{(l)}(x) \D x \int_0^1 g^{(l)}(x) \D x + \int_0^1 f^{(\alpha)}(x) g^{(\alpha)}(x) \D x.$$
+    Then $H_\alpha \subset \tH_\alpha$ where $\tH_\alpha$ is the RKHS with kernel defined in \cref{eq:DSI_kernel}.
 \end{theorem}
 \begin{proof} 
-    See \cref{appendix:proofs}
+    See \Cref{appendix:proofs}
 \end{proof}
 
-The following theorem gives explicit forms of a few higher-order digitally-shift-invariant kernels in base $b=2$ which are plotted in \cref{fig:SI_DSI_kernels}. These kernels are also useful in the computation of the worst-case error of QMC with higher order polynomial-lattice rules as in \citep{baldeaux.polylat_efficient_comp_worse_case_error_cbc}. In fact, their paper details how to compute $\tK_\alpha$ at $\calO(\alpha \#x)$ cost where $\#x$ is the number of non-zero digits in the base $b$ expansion of $x$
+The following theorem gives explicit forms of a few higher-order digitally-shift-invariant kernels in base $b=2$ which are plotted in \Cref{fig:SI_DSI_kernels}. These kernels are also useful in the computation of the worst-case error of QMC with higher order polynomial-lattice rules as in \citep{baldeaux.polylat_efficient_comp_worse_case_error_cbc}. In fact, their paper details how to compute $\tK_\alpha$ at $\calO(\alpha \#x)$ cost where $\#x$ is the number of non-zero digits in the base $b$ expansion of $x$
 \begin{theorem} \label{thm:explicit_DSI_low_order_forms}
-    Fix the base $b=2$. Let $\beta(x) = - \lfloor \log_2(x) \rfloor$ and $t_\nu(x) = 2^{-\nu \beta(x)}$ where for $x=0$ we set $\beta(x) = t_\nu(x) = 0$. Then 
+    Fix the base $b=2$. Let $\beta(x) = - \lfloor \log_2(x) \rfloor$ and for $\nu \in \bbN$ define $t_\nu(x) = 2^{-\nu \beta(x)}$ where for $x=0$ we set $\beta(x) = t_\nu(x) = 0$. Then 
     \begin{align*}
         \tK_2(x) &= -\beta(x) x + \frac{5}{2}\left[1-t_1(x)\right], \\
         \tK_3(x) &= \beta(x)x^2-5\left[1-t_1(x)\right]x+\frac{43}{18}\left[1-t_2(x)\right], \\
@@ -762,7 +761,7 @@ The following theorem gives explicit forms of a few higher-order digitally-shift
     \end{align*}
 \end{theorem}
 \begin{proof}
-    The $\alpha \in \{2,3\}$ forms are due to \citep{baldeaux.polylat_efficient_comp_worse_case_error_cbc}. The $\alpha=4$ form is derived in \cref{appendix:proofs}. 
+    The $\alpha \in \{2,3\}$ forms are due to \citep{baldeaux.polylat_efficient_comp_worse_case_error_cbc}. The $\alpha=4$ form is derived in \Cref{appendix:proofs}. 
 \end{proof}
 
 %For $\alpha \leq 4$ and $\beta,\kappa \in \{0,1\}$  the right derivatives satisfy 
@@ -770,7 +769,7 @@ The following theorem gives explicit forms of a few higher-order digitally-shift
 
 \subsection{Fast kernel computations and efficient updates} 
 
-Let us make the general assumptions satisfied by the formulations in the previous two subsections. 
+The formulations in the previous two subsections have the following properties. 
 \begin{enumerate}
     \item For $n=2^m$, the Gram matrix $\mK^{(m)} \in \bbR^{n \times n}$ can be written as
     $$\mK^{m} = \mV^{(m)} \mLambda^{(m)} \overline{\mV^{(m)}}$$
@@ -804,7 +803,7 @@ where $\tbgamma = \blambda^{(1)} \odot \blambda^{(1)} - \tbw^{(m)} \odot \tbw^{(
 
 \section{Numerical experiments} \label{sec:numerical_experiments}
 
-All numerical experiments were carried out on a 2019 MacBook Pro with an Intel Core i7 processor. \Cref{fig:timing} compares the wall-clock time required to generate point sets and perform fast transforms. Since scaling in the number dimensions and number of randomizations is linear, point sets are only generated in $d=1$ with a single randomization. IID points, lattices with shifts, and digital nets with LMS and digital shifts (including higher-order versions) are the fastest sequences to generate. Digital nets in base $b=2$ exploit Graycode order, integer storage of bit-vectors, and exclusive or (XOR) operations to perform digital addition. Generators of Halton point sets are slower to generate as they cannot exploit these advantages. NUS, especially higher order versions, are significantly slower to generate then LMS randomizations. Even so, higher-order LMS scrambling with digital shifts are sufficient to achieve higher-order RMSE convergence as we shown in the next experiment.  
+All numerical experiments were carried out on a 2019 MacBook Pro with an Intel Core i7 processor. \Cref{fig:timing} compares the wall-clock time required to generate point sets and perform fast transforms. Scaling in the number dimensions and number of randomizations is linear, point sets are only generated in $d=1$ with a single randomization.  IID points, lattices with shifts, and digital nets with LMS and digital shifts (including higher-order versions) are the fastest sequences to generate. Digital nets in base $b=2$ exploit Graycode order, integer storage of bit-vectors, and exclusive or (XOR) operations to perform digital addition. Generators of Halton point sets are slower to generate as they cannot exploit these advantages. NUS, especially higher order versions, are significantly slower to generate than LMS randomizations. Even so, higher-order LMS scrambling with digital shifts are sufficient to achieve higher-order RMSE convergence as we show in the next experiment.  
 
 \begin{figure}%[H]
     \centering
@@ -814,14 +813,14 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
     \label{fig:timing}
 \end{figure}
 
-\Cref{fig:convergence} shows higher-order LMS with digital shifts for base $b=2$ digital nets achieve higher-order RMSE convergence for RQMC methods. Specifically, we are able to achieve an RMSE of $\calO(n^{-\min\{\alpha,\talpha\}-1/2-\delta})$ where $\alpha$ is the higher-order digital interlacing of the net, $\talpha$ is the smoothness of the integrand, and $\delta>0$ is arbitrarily small.  The first two integrands reproduce the experiments of \citep{dick.higher_order_scrambled_digital_nets}. The next two problems are test functions from Derek Bingham's Virtual Library of Simulation Experiments (VLSE)\footnote{\label{fn:VLSE}\url{https://www.sfu.ca/~ssurjano/uq.html}}. The last two Genz functions are used for forward uncertainty quantification in the Dakota software package \citep{adams2020dakota} among other places. For each problem, the RMSE of the (Q)MC estimator  \eqref{eq:mc_approx} with $\bX \sim \calU[0,1]^d$ is approximated using $300$ independent randomizations of a LD (or IID) point sets. For lattices, we periodize the integrand using a Baker-transform i.e. we use $\tilde{f}(\bx) = f(1-2\lvert \bx-1/2\rvert)$ in place of $f(\bx)$ in \eqref{eq:mc_approx}. The Baker-transform does not change the expectation. A description of the integrands follows 
+\Cref{fig:convergence} shows higher-order LMS with digital shifts for base $b=2$ digital nets achieve higher-order RMSE convergence for RQMC methods. Specifically, we are able to achieve an RMSE of $\calO(n^{-\min\{\alpha,\talpha\}-1/2-\delta})$ where $\alpha$ is the higher-order digital interlacing of the net, $\talpha$ is the smoothness of the integrand, and $\delta>0$ is arbitrarily small.  The first two integrands reproduce the experiments of \citep{dick.higher_order_scrambled_digital_nets}. The next two problems are test functions from Derek Bingham's Virtual Library of Simulation Experiments (VLSE)\footnote{\label{fn:VLSE}\url{https://www.sfu.ca/~ssurjano/uq.html}}. The last two Genz functions are used for forward uncertainty quantification in the Dakota software package \citep{adams2020dakota} among other places. For each problem, the RMSE of the (Q)MC estimator $\hmu$ in \eqref{eq:mc_approx} is approximated using $300$ independent randomizations of a LD (or IID) point sets. For lattices, we periodize the integrand using a Baker-transform i.e. we use $\tilde{f}(\bx) = f(1-2\lvert \bx-1/2\rvert)$ in place of $f(\bx)$ in \eqref{eq:mc_approx}. The Baker-transform does not change the expectation. A description of the integrands follows:
 \begin{description}
-    \item[Simple function, $d=1$] has $f(X) = X e^X-1$. This was used in \citep{dick.higher_order_scrambled_digital_nets} where higher-order digital net scrambling was first proposed.
-    \item[Simple function, $d=2$] has $f(\bX) = X_2 e^{X_1 X_2}/(e-2)-1$. This was also used in \citep{dick.higher_order_scrambled_digital_nets}.
-    \item[Oakley \& O'Hagan, $d=2$] has $f(\bX) = g((\bX-1/2)/50)$ for $g(\bT) = 5+T_1+T_2+2\cos(T_1)+2\cos(T_2)$, see \citep{oakley2002bayesian} or the VLSE\footref{fn:VLSE}.
-    \item[G-Function, $d=3$] has $f(\bX) = \prod_{j=1}^d \frac{\lvert 4X_j-2\rvert-a_j}{1+a_j}$ with $a_j = (j-2)/2$ for $1 \leq j \leq d$, see  \citep{crestaux2007polynomial,marrel2009calculations} or the VLSE\footref{fn:VLSE}. 
-    \item[Oscillatory Genz, $d=3$] has $f(\bX) = \cos\left(-\sum_{j=1}^d c_j X_j \right)$ with coefficients of the third kind $c_j = \exp\left(k \log\left(10^{-8}\right)/d\right)$. This is a common test function for uncertainty quantification which is is available in the Dakota software \citep{adams2020dakota} among other.  
-    \item[Corner-peak Genz, $d=3$] has $f(\bx) = \left(1+\sum_{j=1}^d c_j X_j\right)^{-(d+1)}$ with coefficients of the second kind $c_j = 1/j^2$. This is also used in the Dakota software \citep{adams2020dakota} among others. 
+    \item[Simple function, $d=1$] has $f(x) = x e^x-1$. This was used in \citep{dick.higher_order_scrambled_digital_nets} where higher-order digital net scrambling was first proposed.
+    \item[Simple function, $d=2$] has $f(\bx) = x_2 e^{x_1 x_2}/(e-2)-1$. This was also used in \citep{dick.higher_order_scrambled_digital_nets}.
+    \item[Oakley \& O'Hagan, $d=2$] has $f(\bx) = g((\bx-1/2)/50)$ for $g(\bt) = 5+t_1+t_2+2\cos(t_1)+2\cos(t_2)$, see \citep{oakley2002bayesian} or the VLSE\footref{fn:VLSE}.
+    \item[G-Function, $d=3$] has $f(\bx) = \prod_{j=1}^d \frac{\lvert 4x_j-2\rvert-a_j}{1+a_j}$ with $a_j = (j-2)/2$ for $1 \leq j \leq d$, see  \citep{crestaux2007polynomial,marrel2009calculations} or the VLSE\footref{fn:VLSE}. 
+    \item[Oscillatory Genz, $d=3$] has $f(\bx) = \cos\left(-\sum_{j=1}^d c_j x_j \right)$ with coefficients of the third kind $c_j = \exp\left(k \log\left(10^{-8}\right)/d\right)$. This is a common test function for uncertainty quantification which is is available in the Dakota software \citep{adams2020dakota} among other.  
+    \item[Corner-peak Genz, $d=3$] has $f(\bx) = \left(1+\sum_{j=1}^d c_j x_j\right)^{-(d+1)}$ with coefficients of the second kind $c_j = 1/j^2$. This is also used in the Dakota software \citep{adams2020dakota} among others. 
 \end{description}
 
 \begin{figure}%[H]
@@ -837,7 +836,7 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
 This work has reviewed routines for generating low-discrepancy point sets, randomizing them, and applying them to fast kernel methods. We have reviewed lattices, digital nets, and Halton point sets with randomizations spanning shifts, digital permutations, digital shifts, linear matrix scrambling, and nested uniform scrambling. Higher-order scramblings for digital nets were also considered. For kernel methods, we presented classes of kernels which pair with low-discrepancy sequences to accelerate kernel computations. This includes new higher-order digitally shift invariant kernels. The accelerated methods utilize modified fast Fourier transforms and the fast Walsh-Hadamard transform. The presented material has been implemented into the accessible open-source Python library \texttt{QMCPy}.  
 
 \begin{acks}
-    Thank you to Fred J Hickernell, Sou-Cheng T Choi, and Aadit Jain for helpful comments and prototyping. The author would like to acknowledge the support of NSF Grant DMS-2316011.
+    Thank you to Fred J Hickernell, Sou-Cheng T Choi, and Aadit Jain for helpful comments and prototyping. The author would like to acknowledge the support of NSF Grant DMS-2316011 and the DOE Office of Science Graduate Student Research (SCGSR) Program. 
 \end{acks}
 
 %\bibliography{../../meta/ags,main}
@@ -852,7 +851,7 @@ This work has reviewed routines for generating low-discrepancy point sets, rando
 For $k \in \bbN_0$ write
 $$\hf(k) = \int_0^1 f(x) \overline{\wal_k(x)} \D x.$$
 
-\begin{proof}[Proof of \cref{thm:RKHS_DSI_contain}] 
+\begin{proof}[Proof of \Cref{thm:RKHS_DSI_contain}] 
     Suppose $f \in H_\alpha$. Using the fact that \eqref{eq:DSI_kernel} is a Mercer kernel and \citep[Theorem 14, Remark 19]{dick.decay_walsh_coefficients_smooth_functions}, we have 
     $$\llVert f \rrVert_{\tH_\alpha}^2 = \sum_{k \in \bbN_0} \llvert \hf(k) \rrvert^2 b^{\mu_\alpha(k)} \leq C_\alpha \sum_{k \in \bbN} b^{-\mu_\alpha(k)} < \infty$$ 
     for some $C_\alpha < \infty$, so $f \in \tH_K$.
@@ -895,7 +894,7 @@ $$\hf(k) = \int_0^1 f(x) \overline{\wal_k(x)} \D x.$$
     \end{itemize}
 \end{proof}
 
-\begin{proof}[Proof of \cref{thm:explicit_DSI_low_order_forms}]
+\begin{proof}[Proof of \Cref{thm:explicit_DSI_low_order_forms}]
     Write  
     $$\tK_\alpha(x) = 1 + \sum_{1 \leq \nu < \alpha} s_\nu(x) + \ts_\alpha(x)$$ 
     where $s_\nu$ sums over all $k$ with $\#k = \nu$ and $\ts_\alpha$ sums over all $k$ with $\#k \geq \alpha$. In \citep[Corollary 1]{baldeaux.polylat_efficient_comp_worse_case_error_cbc} it was shown that 
@@ -989,6 +988,6 @@ $$\hf(k) = \int_0^1 f(x) \overline{\wal_k(x)} \D x.$$
 % $$\ty_k = \sum_{i=0}^{n/4-1} y_{2(2i)} W_{n/4}^{ik} + W_{n/2}^k \sum_{i=0}^{n/4-1} y_{2(2i+1)} W_{n/4}^{ik} + W_n^k \left(\sum_{i=0}^{n/4-1} y_{2(2i)+1} W_{n/4}^{ik} + W_{n/2}^k \sum_{i=0}^{n/4-1} y_{2(2i+1)+1} W_{n/4}^{ik}\right).$$
 % For $m=2$ this simplifies to 
 % $$\ty_k = y_0 + W_n^{2k} y_2 + W_n^k (y_1 + W_n^{2k} y_3)$$
-% Recursively applying the Danielson-Lanczos lemma for $m>2$ leads to the decimation in time fast Fourier transform (FFT), AKA the Cooley-Tukey algorithm, with computational cost $\calO(n \log n)$. This FFT schematic for $m=3$ is shown in \cref{fig:fast_transforms}. 
+% Recursively applying the Danielson-Lanczos lemma for $m>2$ leads to the decimation in time fast Fourier transform (FFT), AKA the Cooley-Tukey algorithm, with computational cost $\calO(n \log n)$. This FFT schematic for $m=3$ is shown in \Cref{fig:fast_transforms}. 
 
 \end{document}
