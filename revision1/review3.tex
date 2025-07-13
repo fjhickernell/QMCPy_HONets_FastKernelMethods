@@ -5,14 +5,11 @@
 \usepackage{amsfonts}
 \usepackage{bm}
 \usepackage{xcolor}
+\usepackage{url}
 
 \newcommand{\response}[1]{{\newline \textcolor{blue}{#1}}}
 \newcommand{\rbullet}{\textcolor{red}{\textbullet}}
 \newcommand{\fixed}{\response{Fixed.}}
-
-
-\usepackage[square,sort,comma,super,authoryear]{natbib}
-\bibliographystyle{plainnat}
 
 \begin{document}
 
@@ -61,7 +58,8 @@ Other comments
     \response{Changed to ``$H$ with kernel $K$''.} 
     \item page 4, last line: say “the discrepancy above” or “this discrepancy” but then put an equation number and refer to that number
     \fixed
-    \item[\rbullet] page 5, middle: At this point, it is not clear yet what “natural order” means. Please explain or at least say this will be explained later.
+    \item page 5, middle: At this point, it is not clear yet what “natural order” means. Please explain or at least say this will be explained later.
+    \response{Changed ``natural order'' to ``radical inverse order'' throughout.} 
     \item page 5, line 2 of Section 1.3: “rank-1 lattices”, i.e., insert hyphen and fix throughout
     \fixed 
     \item page 6, line below (3): van der Corput (van not capitalized)
@@ -106,16 +104,17 @@ Other comments
     \response{They are now introduced as properties of the two formulations rather than assumptions.} 
     \item page 17: the argument that comparing in d=1 is sufficient makes an implicit assumptions that one would deal with product weights in higher dimensions. This should be mentioned. Otherwise this introduces a complexity that is not linear in the dimension.
     \response{I think your comment is referring to kernel evaluations and kernel weights? We only compare times for generating point sets and applying fast transforms, which shouldn't depend on kernel weights. Perhaps I am missing something?} 
-    \item[\rbullet] page 17, line 9 in Section 6: then -> than; line 10 “as we show” and not “as we shown”
+    \item page 17, line 9 in Section 6: then -> than; line 10 “as we show” and not “as we shown”
     \fixed 
-    \item[\rbullet] page 17, last line: bold capital X is not defined in (1) so this statement is confusing.
+    \item page 17, last line: bold capital X is not defined in (1) so this statement is confusing.
     \response{Clarified we are looking at the  RMSE of the (Q)MC estimator $\hat{\mu}$ from (1) and discarded the $\boldsymbol{X} \sim \mathcal{U}[0,1]^d$.}
     \item page 18: add colon after ``integrands follows:''
     \fixed
     \item[\rbullet] page 18: the end of Section 6 should be rewritten. There are a few limited comments on the results and the test functions are defined AFTER that, which gives the impression the section ends with no comments on the results.
-    \item[\rbullet] references: unusual to have complete first names. Does not seem to be the required format of the journal.
+    \item references: unusual to have complete first names. Does not seem to be the required format of the journal.
+    \response{I am using the provided ACM template. Some articles in the most recent ACM TOMS issue seem to use full first names and some are abbreviated.}
+    \response{\url{https://dl.acm.org/toc/toms/current}} 
 \end{itemize}
 
-\bibliography{./ags,./main}
 
 \end{document}

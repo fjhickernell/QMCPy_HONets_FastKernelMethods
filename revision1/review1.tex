@@ -5,14 +5,11 @@
 \usepackage{amsfonts}
 \usepackage{bm}
 \usepackage{xcolor}
+\usepackage{url} 
 
 \newcommand{\response}[1]{{\newline \textcolor{blue}{#1}}}
 \newcommand{\rbullet}{\textcolor{red}{\textbullet}}
 \newcommand{\fixed}{\response{Fixed.}}
-
-
-\usepackage[square,sort,comma,super,authoryear]{natbib}
-\bibliographystyle{plainnat}
 
 \begin{document}
 
@@ -36,12 +33,11 @@ Some additional remarks:
 \begin{enumerate} 
     \item First sentence of Section 1.2 “Low-discrepancy (LD) pointsets can also been used to accelerated many kernel computations” to be rephrased.
     \fixed
-    \item[\rbullet] Several acronyms used without or before being defined (RKHS, IFFT, FWHT...).
+    \item Several acronyms used without or before being defined (RKHS, IFFT, FWHT...).
+    \response{Made sure acronyms are spelled out the first time they are used.}
     \item[\rbullet] The term ``unified'' is used in the title, but I have to admit I do not see exactly what it unifies with respect to the literature.
     \item performed performed” Page 5.
     \fixed
 \end{enumerate}
-
-\bibliography{./ags,./main}
 
 \end{document}
