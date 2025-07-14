@@ -1,0 +1,47 @@
+def gen_corner_peak_2(x):
+    d = x.shape[-1] # x.shape=(...,n,d), e.g., (n,d) or (r,n,d) 
+    c_tilde = 1/np.arange(1,d+1)**2
+    c = 0.25*c_tilde/np.sum(c_tilde)
+    y = (1+np.sum(c*x,axis=-1))**(-(d+1)) 
+    return y # y.shape=(...,n), e.g., (n,) or (r,n)
+r = 10
+d = 50 
+dnb2 = qp.DigitalNet(dimension=d, replications=r, seed=7, alpha=3)
+true_measure = qp.Uniform(dnb2, lower_bound=0, upper_bound=1)
+integrand = qp.CustomFun(true_measure=true_measure, g=gen_corner_peak_2)
+# equivalent to 
+# integrand = qp.Genz(dnb2, kind_func="CORNER PEAK", kind_coeff=2)
+qmc_algo = qp.CubQMCRepStudentT(integrand, abs_tol=1e-4)
+solution,data = qmc_algo.integrate() # run adaptive QMC algorithm 
+print(solution)
+""" 0.014936095937900273 """
+conf_int = [data.comb_bound_low,data.comb_bound_high]
+std_error = (conf_int[1]-conf_int[0])/2
+print(std_error)
+""" 4.517601744016657e-05 """
+print(data)
+"""
+Data (Data)
+    solution        0.015
+    comb_bound_diff 9.04e-05
+    n_total         10240
+    n_rep           2^(10)
+    time_integrate  0.011
+CubQMCRepStudentT (AbstractStoppingCriterion)
+    alpha           0.010
+    abs_tol         1.00e-04
+    rel_tol         0
+    n_init          2^(8)
+Uniform (AbstractTrueMeasure)
+    lower_bound     0
+    upper_bound     1
+DigitalNetB2 (AbstractLDDiscreteDistribution)
+    d               50
+    replications    10
+    randomize       LMS DS
+    gen_mats_source joe_kuo.6.21201.txt
+    order           RADICAL INVERSE
+    t               63
+    alpha           3
+    entropy         7
+"""

@@ -1,0 +1,10 @@
+y2 = rng.uniform(low=0,high=1,size=n)
+# inefficient fast transform update 
+yfull = np.concatenate([y1,y2]) # shape=(2*n,)
+yt_inefficient = qp.fwht(yfull)
+# efficient fast transform update 
+y2t = qp.fwht(y2) # shape=(n,)
+omega = qp.omega_fwht(m) # shape=(n,) 
+yt_efficient = np.hstack([y1t+omega*y2t,y1t-omega*y2t])/np.sqrt(2)
+# verify correctness
+assert np.allclose(yt_efficient,yt_inefficient)

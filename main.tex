@@ -26,6 +26,9 @@
 \usepackage{cleveref}
 \usepackage{subcaption}
 
+\usepackage{minted}
+\usemintedstyle{emacs}
+
 \input{./ags.tex}
 
 \setcopyright{acmlicensed}
@@ -76,7 +79,7 @@
 
 % http://dl.acm.org/ccs.cfm
 \begin{abstract}
-    Quasi-random sequences, also called low-discrepancy sequences, have been extensively used as efficient experimental designs across many scientific disciplines. This article provides a unified description and software API for methods pertaining to low-discrepancy point sets. These methods include low discrepancy point set generators, randomization techniques, and fast kernel methods. Specifically, we provide generators for lattices, digital nets, and Halton point sets. Supported randomization techniques include random permutations / shifts, linear matrix scrambling, and nested uniform scrambling. Routines for working with higher-order digital nets and scramblings are also detailed. For kernel methods, we provide implementations of special shift-invariant and digitally-shift invariant kernels along with fast Gram matrix operations facilitated by the bit-reversed Fast Fourier Transform (FFT), the bit-reversed Inverse Fast Fourier Transform (IFFT), and the Fast Walsh Hadamard Transform (FWHT). A new digitally-shift-invariant kernel of higher-order smoothness is also derived. We also describe methods to quickly update the matrix-vector product or linear system solution after doubling the number of points in a lattice or digital net in radical inverse order.
+    Quasi-random sequences, also called low-discrepancy sequences, have been extensively used as efficient experimental designs across many scientific disciplines. This article provides a unified description and software API for methods pertaining to low-discrepancy point sets. These methods include low discrepancy point set generators, randomization techniques, and fast kernel methods. Specifically, we provide generators for lattices, digital nets, and Halton point sets. Supported randomization techniques include random permutations / shifts, linear matrix scrambling, and nested uniform scrambling. Routines for working with higher-order digital nets and scramblings are also detailed. For kernel methods, we provide implementations of special shift-invariant and digitally-shift-invariant kernels along with fast Gram matrix operations facilitated by the bit-reversed Fast Fourier Transform (FFT), the bit-reversed Inverse Fast Fourier Transform (IFFT), and the Fast Walsh Hadamard Transform (FWHT). A new digitally-shift-invariant kernel of higher-order smoothness is also derived. We also describe methods to quickly update the matrix-vector product or linear system solution after doubling the number of points in a lattice or digital net in radical inverse order.
 \end{abstract}
 
 % https://dl.acm.org/ccs#
@@ -208,9 +211,15 @@ The remainder of this article is organized as follows. First, we describe our im
 
 \section{Implementation} \label{sec:implementation}
 
-We have implemented this work into \texttt{QMCPy}\footnote{\url{https://qmcsoftware.github.io/QMCSoftware/}} version 2.0 \AGSNote{MAKE RELEASE BEFORE RESUBMITTING}, installable with \texttt{pip install -U qmcpy}. The architecture and philosophy underlying \texttt{QMCPy} are described in \citep{choi.QMC_software,choi.challenges_great_qmc_software}. To follow along with code snippets presented in this article, please import \texttt{QMCPy} and \texttt{NumPy} \citep{NumPy.software} via 
-\lstinputlisting[style=Python]{snippets/imports.txt}
-These code snippets and code producing the plots in this article are available in notebook form\footnote{\url{https://github.com/QMCSoftware/QMCSoftware/blob/master/demos/ld_randomizations_and_higher_order_nets.ipynb}}.  
+We have implemented this work into \texttt{QMCPy}\footnote{\url{https://qmcsoftware.github.io/QMCSoftware/}} version 2.0 \AGSNote{MAKE RELEASE BEFORE RESUBMITTING}, installable with \texttt{pip install -U qmcpy}. The architecture and philosophy underlying \texttt{QMCPy} are described in \citep{choi.QMC_software,choi.challenges_great_qmc_software}. To follow along with code snippets presented in this article, please import \texttt{QMCPy} and \texttt{NumPy} \citep{NumPy.software} via
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/imports.txt}
+    \caption{Import the Python packages to be used in examples throughout this paper.}
+    \label{code:imports}
+\end{listing}
+
+\noindent These code snippets and code producing the plots in this article are available in notebook form\footnote{\url{https://github.com/QMCSoftware/QMCSoftware/blob/master/demos/ld_randomizations_and_higher_order_nets.ipynb}} \AGSNote{Update URL to point to docs at qmcsoftware.github.io}.  
 
 Most of the \texttt{QMCPy} objects and methods presented here are wrappers around the lower level \texttt{QMCToolsCL}\footnote{\url{https://qmcsoftware.github.io/QMCToolsCL/}} package. The Python functions in \texttt{QMCToolsCL} often call lower level C implementations for improved performance. \texttt{QMCToolsCL} interfaces for other languages which support C extensions is a direction of future work.
 
@@ -365,7 +374,7 @@ so that $v(i) = F_m(\bD_m(i))$ when $i < b^m$, which is always the case in this 
         \draw[->] (\axsep,\scale*17/18) -- (2*\axsep,\scale*13/18);
     \end{tikzpicture}
     \end{subfigure}
-    \caption{Low-discrepancy randomization routines in dimension $d=1$. Each vertical line is a unit interval with $0$ at the bottom and $1$ at the top. A given interval is partitioned at the horizontal ticks extending to the right, and then rearranged following the arrows to create the partition of the right interval as shown by the ticks extending to the left. For the shifted lattice and digitally shifted digital net, when the arrow hits a horizontal gray bar it is wrapped around to the next gray bar below. See for example the dotted line in the shifted digital net. The lattice shift is $\Delta = \thisDelta$. All digital nets use base $b=3$ and $t_\mathrm{max}=2$ digits of precision. The digital shift is $\bDelta = (2,1)^\intercal$. Dropping the $j$ subscript for dimension, the digital permutations in the third panel are $\pi_1 = (2,0,1)$ and $\pi_2 = (2,1,0)$. Notice $\pi_1$ is equivalent to a digital shift by $2$, but $\pi_2$ cannot be written as a digital shift. The nested uniform scramble (NUS) has digital permutations $\pi = (2,0,1)$, $\pi_0 = (2,1,0)$, $\pi_1 = (0,1,2)$, and $\pi_2 = (1,2,0)$. Notice the permuted digital net in third panel has permutations depending only on the current digit in the base $b$ expansion. In contrast, the full NUS scrambling in the fourth panel has permutations which depend on all previous digits in the base $b$ expansion.}
+    \caption{Low-discrepancy randomization routines in dimension $d=1$. Each vertical line is a unit interval with $0$ at the bottom and $1$ at the top. A given interval is partitioned at the horizontal ticks extending to the right, and then rearranged following the arrows to create the partition of the right interval as shown by the ticks extending to the left. For the shifted lattice and digitally-shifted digital net, when the arrow hits a horizontal gray bar it is wrapped around to the next gray bar below. See for example the dotted line in the shifted digital net. The lattice shift is $\Delta = \thisDelta$. All digital nets use base $b=3$ and $t_\mathrm{max}=2$ digits of precision. The digital shift is $\bDelta = (2,1)^\intercal$. Dropping the $j$ subscript for dimension, the digital permutations in the third panel are $\pi_1 = (2,0,1)$ and $\pi_2 = (2,1,0)$. Notice $\pi_1$ is equivalent to a digital shift by $2$, but $\pi_2$ cannot be written as a digital shift. The nested uniform scramble (NUS) has digital permutations $\pi = (2,0,1)$, $\pi_0 = (2,1,0)$, $\pi_1 = (0,1,2)$, and $\pi_2 = (1,2,0)$. Notice the permuted digital net in third panel has permutations depending only on the current digit in the base $b$ expansion. In contrast, the full NUS scrambling in the fourth panel has permutations which depend on all previous digits in the base $b$ expansion.}
     \label{fig:ld_randomizations}
 \end{figure}  
 
@@ -380,8 +389,14 @@ If $n=b^m$ for some $m \in \bbN_0$, then the lattice point set $\{\bz_i\}_{i=0}^
     $$\bx_i= (\bz_i + \bDelta) \mod 1$$ 
 \end{description}
 where $\bz_i$ are lattice point set. The shift operation mod 1 is visualized in \Cref{fig:ld_randomizations}. Randomized lattices use $\bDelta \sim \calU[0,1]^d$. In the following code snippet we generate $R$ independently shifted lattices with shifts $\bDelta_1,\dots,\bDelta_R \simiid \calU[0,1]^d$. 
-\lstinputlisting[style=Python]{snippets/lattice.txt}
-Here we have used a generating vector from \citep{cools2006constructing} which is stored in a standardized format in the \texttt{LDData} repository. Other generating vectors from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/tree/main/lattice/} or by passing an explicit array. 
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/lattice.txt}
+    \caption{Generate randomized lattices.}
+    \label{code:lattice}
+\end{listing}
+
+\noindent Here we have used a generating vector from \citep{cools2006constructing} which is stored in a standardized format in the \texttt{LDData} repository. Other generating vectors from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/tree/main/lattice/} or by passing an explicit array. 
 
 \subsection{Digital nets} 
 
@@ -389,7 +404,7 @@ Consider a fixed prime base $b$ and \emph{generating matrices} $\mC_1,\dots\mC_d
 $$\bmz_{ij} = \mC_j \bmi \mod b \qquad\text{so that}\qquad z_{ij} = F_{t_\mathrm{max}}(\bmz_{ij}).$$
 
 \begin{description}
-    \item[Digitally shifted digital net] Similar to lattices, one may apply a shift $\mDelta \in [0,1)^{t_\mathrm{max} \times d}$ to the digital net to get a digitally-shifted digital net $\{\bx_i\}_{i=0}^{b^m-1}$ where 
+    \item[Digitally-shifted digital net] Similar to lattices, one may apply a shift $\mDelta \in [0,1)^{t_\mathrm{max} \times d}$ to the digital net to get a digitally-shifted digital net $\{\bx_i\}_{i=0}^{b^m-1}$ where 
     $$x_{ij} = F_{t_\mathrm{max}}((\bmz_{ij} + \bDelta_j ) \mod b)$$
     and $\bDelta_j$ is the $j^\mathrm{th}$ column of $\mDelta$. Randomly shifted digital nets use $\mDelta \simiid \calU\{0,\dots,b-1\}^{t_\mathrm{max} \times d}$ i.e. is each digit is chosen uniformly from $\{0,\dots,b-1\}$. 
     \item[Digitally permuted digital net] In what follows we will denote permutations of $\{0,\dots,b-1\}$ by $\pi$. Suppose we are given a set of permutations
@@ -442,8 +457,14 @@ Gray code ordering of digital nets enables computing the next point $\bx_{i+1}$ 
 \end{table}
 
 The following code generates $\alpha=2$ higher-order digital nets in base $2$ with  $R$ independent LMS and digital shift combinations. 
-\lstinputlisting[style=Python]{snippets/dnb2.txt}
-Here we have used a set of Sobol' generating matrices from Joe and Kuo\footnote{the ``new-joe-kuo-6.21201'' direction numbers from \url{https://web.maths.unsw.edu.au/~fkuo/sobol/index.html}} \citep{joe2008constructing} which are stored in a standardized format in the \texttt{LDData} repository. Other generating matrices from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/blob/main/dnet/} or by passing an explicit array. 
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/dnb2.txt}
+    \caption{Generate randomized higher-order digital nets.}
+    \label{code:dnb2}
+\end{listing}
+
+\noindent Here we have used a set of Sobol' generating matrices from Joe and Kuo\footnote{the ``new-joe-kuo-6.21201'' direction numbers from \url{https://web.maths.unsw.edu.au/~fkuo/sobol/index.html}} \citep{joe2008constructing} which are stored in a standardized format in the \texttt{LDData} repository. Other generating matrices from \texttt{LDData} may be used by passing in a file name from \url{https://github.com/QMCSoftware/LDData/blob/main/dnet/} or by passing an explicit array. 
 
 \subsection{Halton sequences}
 
@@ -454,12 +475,18 @@ where we have added a subscript to $v$ in \eqref{eq:v} to denote the base depend
 Almost all the methods described for digital sequences are immediately applicable to Halton sequences after accounting for the differing bases across dimensions. However, digital interlacing is not generally applicable when the bases differ. Halton with random starting points has also been explored in \citep{wang2000randomized}, although we do not consider this here.
 %Our implementation is separated into base $b=2$ digital nets and generalized digital nets. This is done because base $b=2$ digital nets can store columns of generating matrices as integers and then quickly perform digital addition using exclusive or (XOR) instructions. \texttt{QMCPy} currently only supports Halton point sets, although this is a topic for future work. 
 The following code generates a Halton point set with $R$ independent LMS and digital permutation combinations. Specifically, we generate $R$ independent LMS-Halton point sets and then apply an independent permutation scramble to each.
-\lstinputlisting[style=Python]{snippets/halton.txt}
-The \texttt{QRNG} randomization follows the QRNG software package \citep{qrng.software} in generating a generalized Halton point set \citep{faure2009generalized} using a deterministic set of  permutation scrambles and random digital shifts. 
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/halton.txt}
+    \caption{Generate randomized Halton points.}
+    \label{code:halton}
+\end{listing}
+
+\noindent The \texttt{QRNG} randomization follows the QRNG software package \citep{qrng.software} in generating a generalized Halton point set \citep{faure2009generalized} using a deterministic set of  permutation scrambles and random digital shifts. 
 
 \section{Fast transforms and kernel computations} \label{sec:fast_transforms}
 
-Recall from the introduction that we would like to compute the matrix-vector product $\mK \by$ and solve the linear system $\mK^{-1} \by$ where $\by$ is some known length $n$ vector and $\mK = \{K(\bx_i,\bx_k)\}_{i,k=0}^{n-1}$ is a $n \times n$ symmetric positive definite (SPD) Gram matrix based on an SPD kernel $K$ and point set $\{\bx_i\}_{i=0}^{n-1}$. We may reduce the standard $\calO(n^2)$ and $\calO(n^3)$ costs of solving these respective problems to both be $\calO(n \log n)$ by inducing structure into $\mK$ using special point set-kernel pairings. Specifically, pairing lattice points with a shift invariance kernel yields a circulant Gram matrix $\mK$ for which computations can be done quickly using the bit-reversed fast Fourier transform (FFT) and bit-reversed inverse FFT (IFFT). Similarly, pairing a digital net with digitally-shift-invariant kernel yields a nested block Toeplitz matrix for which computations can be done quickly using the fast Walsh Hadamard Transform (FWHT). Shift-invariant and digitally-shift-invariant kernels are shown in \Cref{fig:SI_DSI_kernels}. The reduced costs achieved by inducing these structures are summarized in \Cref{tab:com_kernel_costs}.
+Recall from the introduction that we would like to compute the matrix-vector product $\mK \by$ and solve the linear system $\mK^{-1} \by$ where $\by$ is some known length $n$ vector and $\mK = \{K(\bx_i,\bx_k)\}_{i,k=0}^{n-1}$ is a $n \times n$ symmetric positive definite (SPD) Gram matrix based on an SPD kernel $K$ and point set $\{\bx_i\}_{i=0}^{n-1}$. We may reduce the standard $\calO(n^2)$ and $\calO(n^3)$ costs of solving these respective problems to both be $\calO(n \log n)$ by inducing structure into $\mK$ using special point set-kernel pairings. Specifically, pairing lattice points with a shift-invariant kernel yields a circulant Gram matrix $\mK$ for which computations can be done quickly using the bit-reversed fast Fourier transform (FFT) and bit-reversed inverse FFT (IFFT). Similarly, pairing a digital net with digitally-shift-invariant kernel yields a nested block Toeplitz matrix for which computations can be done quickly using the fast Walsh Hadamard Transform (FWHT). Shift-invariant and digitally-shift-invariant kernels are shown in \Cref{fig:SI_DSI_kernels}. The reduced costs achieved by inducing these structures are summarized in \Cref{tab:com_kernel_costs}.
 
 \begin{figure}%[H]
     \centering
@@ -484,7 +511,7 @@ Recall from the introduction that we would like to compute the matrix-vector pro
 
 The following code can be used to construct a Gram matrix with a lattice point set and shift-invariant kernel. The Gram matrix is then used to perform matrix-vector multiplication and solve a linear system. Analogous code using \texttt{qp.DigitalNetB2}, \texttt{qp.KernelDigShiftInvar}, and \texttt{qp.FastGramMatrixDigitalNetB2} is also supported. 
 
-\lstinputlisting[style=Python]{snippets/kernel_methods.txt}
+\AGSNote{TODO: Update text since removing old kernel methods example}
 
 Schematics of the bit-reversed FFT and FWHT underlying these fast computations are shown in \Cref{fig:fast_transforms}. The one-dimensional bit-reversed FFT, one-dimensional bit-reversed IFFT, and one-dimensional FWHT are implemented into the \texttt{QMCPy} functions \texttt{qp.fftbr}, \texttt{qp.ifftbr}, and \texttt{qp.fwht} respectively. These fast transforms act along the last dimension which is required to to have length $2^m$ for some $m \geq 0$.  The following subsections detail the matching point set-kernel pairings and provide methods to quickly update the Gram matrix product or linear system solution after doubling the point size.
 
@@ -671,7 +698,7 @@ Schematics of the bit-reversed FFT and FWHT underlying these fast computations a
     \Description[]{}
 \end{figure}  
 
-\subsection{Shift invariant kernels, lattices,  and the bit-reversed FFT/IFFT} \label{subsec:SI_kernels}
+\subsection{Shift-invariant kernels, lattices,  and the bit-reversed FFT/IFFT} \label{subsec:SI_kernels}
 
 A kernel is said to be \emph{shift-invariant} when $K(\bu,\bv) = \tK((\bu-\bv) \mod 1)$ for some $\tK$ i.e. the kernel is only a function of the component-wise difference between inputs modulo $1$. One set of shift-invariant kernels take the form 
 \begin{equation}
@@ -713,7 +740,7 @@ A kernel is said to be \emph{digitally-shift-invariant} when
 $$K(\bu, \bv) = \tK(\bu \ominus \bv)$$
 for some $\tK$. 
 
-Suppose $n =b^m$ for some $m \in \bbN_0$ and let $\{\bx_i\}_{i=0}^{b^m-1}$ be a digitally shifted digital net in radical inverse order (possibly of higher order and/or with LMS). Following \cite[Theorem 5.3.1,Theorem 5.3.2]{rathinavel.bayesian_QMC_sobol}, for $b=2$, the Gram matrix $\mK$ is \emph{nested block Toeplitz} which implies the eigendecomposition
+Suppose $n =b^m$ for some $m \in \bbN_0$ and let $\{\bx_i\}_{i=0}^{b^m-1}$ be a digitally-shifted digital net in radical inverse order (possibly of higher order and/or with LMS). Following \cite[Theorem 5.3.1,Theorem 5.3.2]{rathinavel.bayesian_QMC_sobol}, for $b=2$, the Gram matrix $\mK$ is \emph{nested block Toeplitz} which implies the eigendecomposition
 $$\mK = \frac{1}{n} \mH^{(m)} \mLambda^{(m)} \mH^{(m)}$$ where $\mH^{(m)}$ is the $2^m \times 2^m$ Hadamard matrix defined by $\mH^{(0)} = (1)$ and the relationship 
 $$\mH^{(m+1)} = \begin{pmatrix} \mH^{(m)} & \mH^{(m)} \\ \mH^{(m)} & - \mH^{(m)} \end{pmatrix}.$$
 Multiplying by $\mH^{(m)}$ can be done at $\calO(n \log n)$ cost using the FWHT. 
@@ -797,6 +824,19 @@ To update the solutions of the motivating problems, it is easily shown that
 \end{align*}
 where $\tbgamma = \blambda^{(1)} \odot \blambda^{(1)} - \tbw^{(m)} \odot \tbw^{(m)} \odot \blambda^{(2)} \odot \blambda^{(2)}$. 
 
+\AGSNote{TODO: Update text to describe the following two examples as well as the dnet + FWHT counterparts in \Cref{code:dsi_dnet_1} and \Cref{code:dsi_dnet_2}.}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/si_lattice_1.txt}
+    \caption{Efficient Gram matrix multiplication and inversion when pairing a lattice point set with a shift invariant kernel.}
+    \label{code:si_lattice_1}
+\end{listing}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/si_lattice_2.txt}
+    \caption{Efficient FFTBR update after doubling the sample size. Code continues from \Cref{code:si_lattice_1}.}
+    \label{code:si_lattice_2}
+\end{listing}
 
 \section{Numerical experiments} \label{sec:numerical_experiments}
 
@@ -816,9 +856,17 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
     \item[Simple function, $d=2$] has $f(\bx) = x_2 e^{x_1 x_2}/(e-2)-1$. This was also used in \citep{dick.higher_order_scrambled_digital_nets}.
     \item[Oakley \& O'Hagan, $d=2$] has $f(\bx) = g((\bx-1/2)/50)$ for $g(\bt) = 5+t_1+t_2+2\cos(t_1)+2\cos(t_2)$, see \citep{oakley2002bayesian} or the VLSE\footref{fn:VLSE}.
     \item[G-Function, $d=3$] has $f(\bx) = \prod_{j=1}^d \frac{\lvert 4x_j-2\rvert-a_j}{1+a_j}$ with $a_j = (j-2)/2$ for $1 \leq j \leq d$, see  \citep{crestaux2007polynomial,marrel2009calculations} or the VLSE\footref{fn:VLSE}. 
-    \item[Oscillatory Genz, $d=3$] has $f(\bx) = \cos\left(-\sum_{j=1}^d c_j x_j \right)$ with coefficients of the third kind $c_j = \exp\left(k \log\left(10^{-8}\right)/d\right)$. This is a common test function for uncertainty quantification which is is available in the Dakota software \citep{adams2020dakota} among other.  
-    \item[Corner-peak Genz, $d=3$] has $f(\bx) = \left(1+\sum_{j=1}^d c_j x_j\right)^{-(d+1)}$ with coefficients of the second kind $c_j = 1/j^2$. This is also used in the Dakota software \citep{adams2020dakota} among others. 
+    \item[Oscillatory Genz, $d=3$] has $f(\bx) = \cos\left(-\sum_{j=1}^d c_j x_j \right)$ with coefficients of the third kind $c_j = 4.5 \tc_j/\sum_{j=1}^d \tc_j$ where $\tc_j = \exp\left(j \log\left(10^{-8}\right)/d\right)$. This is a common test function for uncertainty quantification which is is available in the Dakota software \citep{adams2020dakota} among other.  
+    \item[Corner-peak Genz, $d=3$] has $f(\bx) = \left(1+\sum_{j=1}^d c_j x_j\right)^{-(d+1)}$ with coefficients of the second kind $c_j = 0.25 \tc_j/\sum_{j=1}^d \tc_j$ where $\tc_j = 1/j^2$. This is also used in the Dakota software \citep{adams2020dakota} among others. 
 \end{description}
+
+\AGSNote{TODO: Update text to describe integration example, reference SciPy + mention import, refer to adaptive version in \Cref{code:genz_ex_2}.}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/genz_ex_1.txt}
+    \caption{Randomized QMC approximation and error estimation for a fixed number of points.}
+    \label{code:genz_ex_1}
+\end{listing}
 
 \begin{figure}%[H]
     \centering
@@ -830,7 +878,7 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
 
 \section{Conclusion and future work} \label{sec:conclusions_future_work}
 
-This work has reviewed routines for generating low-discrepancy point sets, randomizing them, and applying them to fast kernel methods. We have reviewed lattices, digital nets, and Halton point sets with randomizations spanning shifts, digital permutations, digital shifts, linear matrix scrambling, and nested uniform scrambling. Higher-order scramblings for digital nets were also considered. For kernel methods, we presented classes of kernels which pair with low-discrepancy sequences to accelerate kernel computations. This includes new higher-order digitally shift invariant kernels. The accelerated methods utilize modified fast Fourier transforms and the fast Walsh-Hadamard transform. The presented material has been implemented into the accessible open-source Python library \texttt{QMCPy}.  
+This work has reviewed routines for generating low-discrepancy point sets, randomizing them, and applying them to fast kernel methods. We have reviewed lattices, digital nets, and Halton point sets with randomizations spanning shifts, digital permutations, digital shifts, linear matrix scrambling, and nested uniform scrambling. Higher-order scramblings for digital nets were also considered. For kernel methods, we presented classes of kernels which pair with low-discrepancy sequences to accelerate kernel computations. This includes new higher-order digitally-shift-invariant kernels. The accelerated methods utilize modified fast Fourier transforms and the fast Walsh-Hadamard transform. The presented material has been implemented into the accessible open-source Python library \texttt{QMCPy}.  
 
 \begin{acks}
     Thank you to Fred J Hickernell, Sou-Cheng T Choi, and Aadit Jain for helpful comments and prototyping. The author would like to acknowledge the support of NSF Grant DMS-2316011 and the DOE Office of Science Graduate Student Research (SCGSR) Program. 
@@ -842,6 +890,26 @@ This work has reviewed routines for generating low-discrepancy point sets, rando
 \bibliography{./ags,./main}
 
 \appendix 
+
+\section{Extra Code Snippets} \label{appendix:codes}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/genz_ex_2.txt}
+    \caption{Adaptive randomized QMC approximation and error estimation.}
+    \label{code:genz_ex_2}
+\end{listing}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/dsi_dnet_1.txt}
+    \caption{Efficient Gram matrix multiplication and inversion when pairing a digital net with a digitally-shift-invariant kernel.}
+    \label{code:dsi_dnet_1}
+\end{listing}
+
+\begin{listing}[H]
+    \inputminted{python}{snippets/dsi_dnet_2.txt}
+    \caption{Efficient FWHT update after doubling the sample size. Code continues from \Cref{code:dsi_dnet_1}.}
+    \label{code:dsi_dnet_2}
+\end{listing}
 
 \section{Proofs of theorems} \label{appendix:proofs}
 
