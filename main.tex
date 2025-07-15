@@ -156,7 +156,7 @@ Here $f: [0,1]^d \to \bbR$ is a given integrand and $\{\bx_i\}_{i=0}^{n-1} \in [
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/pointsets.eps}
+    %\includegraphics[width=1\textwidth]{./figs/pointsets.png}
     \caption{An independent identically distributed (IID) point set and low-discrepancy (quasi-random) point sets of size $n=2^{13}=8192$. Notice the quasi-random points more evenly fill the space than IID points, which leads to faster convergence of Quasi-Monte Carlo methods compared to IID Monte Carlo methods. Randomized lattices, digital nets in base $b=2$ (DN${}_{2}$), and Halton points are shown. Randomizations include shifts, linear matrix scramblings (LMS), digital shifts (DS), digital permutations (DP), and nested uniform scramblings (NUS). Digital interlacing of order $\alpha$ is used to create higher-order randomized digital nets (HO${}_\alpha$).}
     \Description[]{}
     \label{fig:point sets}
@@ -604,8 +604,8 @@ Schematics of the bit-reversed FFT and FWHT underlying these fast computations a
         \draw (\y/3+2*\z/3,0) node[draw,circle,minimum size=2cm](wob){$\frac{a-W_n^rb}{\sqrt{2}}$};
         \draw[->] (wit) -- (wob); 
         \draw[->] (wib) -- (wot); 
-        \draw (\z/2,1.5*\h) node[draw,circle,fill=black,text=white]{$r$};
-        \draw (\z/2,3*\h) node{$W_n = e^{-2 \pi \sqrt{-1}/n}$};
+        \draw (.45*\z,1.5*\h) node[draw,circle,fill=black,text=white]{$r$};
+        \draw (.45*\z,3*\h) node{$W_n = e^{-2 \pi \sqrt{-1}/n}$};
     \end{tikzpicture}
     \end{subfigure}
     \begin{subfigure}[t]{.49\textwidth}
@@ -690,7 +690,7 @@ Schematics of the bit-reversed FFT and FWHT underlying these fast computations a
         \draw (\y/3+2*\z/3,0) node[draw,circle,minimum size=2cm](wob){$\frac{a-b}{\sqrt{2}}$};
         \draw[->] (wit) -- (wob); 
         \draw[->] (wib) -- (wot); 
-        \draw (\z/2,1.5*\h) node[draw,circle,fill=black,text=white]{};
+        \draw (.45*\z,1.5*\h) node[draw,circle,fill=black,text=white]{};
     \end{tikzpicture}
     \end{subfigure}
     \caption{Bit-reversed FFT and FWHT schemes. The bit-reversed FFT is performed via a decimation in time algorithm without the initial reordering of inputs. The bit-reversed IFFT may be performed by propagating $\{\ty_i\}_{i=0}^{2^m-1}$ to $\{y_i\}_{i=0}^{2^m-1}$ in the other direction through the bit-reversed FFT algorithm.}
@@ -844,7 +844,7 @@ All numerical experiments were carried out on a 2019 MacBook Pro with an Intel C
 
 \begin{figure}%[H]
     \centering
-    %\includegraphics[width=1\textwidth]{./figs/timing.eps}
+    % \includegraphics[width=1\textwidth]{./figs/timing.png}
     \caption{Comparison of time required to generate IID and low-discrepancy point sets and perform fast transforms. All point sets are generated in a single dimension and with a single randomizations. BR indicates the bit-reversed FFT and IFFT.}
     \Description[]{}
     \label{fig:timing}
