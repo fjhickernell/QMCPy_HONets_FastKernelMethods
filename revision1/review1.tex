@@ -19,14 +19,18 @@ This paper is providing a description of quasi-Monte Carlo sequences generators,
 
 The paper is interesting but I have several concerns which would mean a complete rewriting:
 \begin{itemize} 
-    \item[\rbullet] The goal and message of the paper is not clear to me and should be really highlighted. I see some long description of QMC sequences, randomizations and kernel methods (with a new one), but this was mostly already existing; it is hard for me to retain what the author wants to tell. I would have expected a description of a (new) use of qmcpy, but there is not such a focus and the provided algorithms are not explained (so that I do not really see the interest of inserting them in the paper).
-    \item[\rbullet] A related point, the level of contribution does not seem to me sufficient for a journal paper: it is rather limited to some digitally-shift-invariant kernels. As it is, it is hard for me to count the implementation of MC sequences and randomizations as a contribution since the implementation those techniques were already existing (even if maybe differently) and the description of the novelty in the implementation is not really described.
-    \item[\rbullet] There is no comparison with existing other softwares implementing QMC techniques in terms of performance and range of techniques. That is something which would interest me and probably the community.
-    \item[\rbullet] The level of writing is not what I am expecting for a journal like ACM ToMS. Indeed, the style is quite abrupt, many notions are not introduced and would lose a non-expert reader. To give an illustration, the introduction starts with a list of generators, randomizations and kernels, but no context about why they are of interest.
-    \item[\rbullet] The numerical experiments are limited to dimensions up to 3, which may be seen limited. Again, I would have liked a comparison with existing softwares.
+    \item The goal and message of the paper is not clear to me and should be really highlighted. I see some long description of QMC sequences, randomizations and kernel methods (with a new one), but this was mostly already existing; it is hard for me to retain what the author wants to tell. I would have expected a description of a (new) use of qmcpy, but there is not such a focus and the provided algorithms are not explained (so that I do not really see the interest of inserting them in the paper). \newline 
+    A related point, the level of contribution does not seem to me sufficient for a journal paper: it is rather limited to some digitally-shift-invariant kernels. As it is, it is hard for me to count the implementation of MC sequences and randomizations as a contribution since the implementation those techniques were already existing (even if maybe differently) and the description of the novelty in the implementation is not really described.
+    \response{We have significantly reworked the paper to emphasize the novel unification of QMC methods and QMC kernel methods into a single user-friendly software. This includes more robust comparisons, newly supported integraiton routines, and explicit algorithms for QMC kernel methods.}
+    \item There is no comparison with existing other softwares implementing QMC techniques in terms of performance and range of techniques. That is something which would interest me and probably the community.
+    \response{Updated the introduction to include a discussion of features in related QMC softwares. Added to the timing study a comparison to existing softwares.} 
+    \item The level of writing is not what I am expecting for a journal like ACM ToMS. Indeed, the style is quite abrupt, many notions are not introduced and would lose a non-expert reader. To give an illustration, the introduction starts with a list of generators, randomizations and kernels, but no context about why they are of interest.
+    \response{Added context / motivation to the introduction and significantly rewrote large portions of the text to improve readility.} 
+    \item The numerical experiments are limited to dimensions up to 3, which may be seen limited. Again, I would have liked a comparison with existing softwares.
+    \response{Updated timing comparison to consider high dimensions, high numbers of randomizations, and a comparison to existing QMC generators from other Python libraries. We also added an example of QMC error estimation for a 50 dimensional Genz function. For the higher order nets, we only test up to dimension 3 as higher order nets have not been shown to be practically useful in higher dimensions. For instance, the original paper on higher order net scrambling only considered the $d=1$ and $d=2$ examples which are reproduced in this paper. \newline 
+    Dick, Josef. "Higher order scrambled digital nets achieve the optimal rate of the root mean square error for smooth integrands." (2011): 1372-1398.
+    }
 \end{itemize} 
-
-For those reasons, I recommend to reject the paper.
 
 Some additional remarks:
 
@@ -35,7 +39,8 @@ Some additional remarks:
     \fixed
     \item Several acronyms used without or before being defined (RKHS, IFFT, FWHT...).
     \response{Made sure acronyms are spelled out the first time they are used.}
-    \item[\rbullet] The term ``unified'' is used in the title, but I have to admit I do not see exactly what it unifies with respect to the literature.
+    \item The term ``unified'' is used in the title, but I have to admit I do not see exactly what it unifies with respect to the literature.
+    \response{Our goal is to provide a one-stop-shop for QMC generators, randomization techniques, and QMC kernel methods. The novel unification of these methods into a single, readily-available software is now emphasized in the introduction.}
     \item performed performed” Page 5.
     \fixed
 \end{enumerate}

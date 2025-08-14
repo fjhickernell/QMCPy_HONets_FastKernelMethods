@@ -39,11 +39,13 @@
     \response{I am not aware of such theory. May you provide a reference?} 
     \response{The following article consideres all $b!$ permutations of $\{0,1,\dots,b-1\}$.} 
     \response{Owen, Art B. ``Variance and discrepancy with alternative scramblings." ACM Transactions of Modeling and Computer Simulation 13.4 (2003).}
-    \item[\rbullet] section 6: The author says that the timings are only done for d=1 and a single randomization and claims this is linear in complexity. Yes this is correct asymptotically, but depending on data layout and implementation (like ordering) things could actually look quite differently in real tests. I would strongly suggest that to strengthen this claim, a second set of results is included for say d=50 and 10 random shifts.
+    \item section 6: The author says that the timings are only done for d=1 and a single randomization and claims this is linear in complexity. Yes this is correct asymptotically, but depending on data layout and implementation (like ordering) things could actually look quite differently in real tests. I would strongly suggest that to strengthen this claim, a second set of results is included for say d=50 and 10 random shifts.
+    \response{We have expanded the timing comparison to consider multiple dimensions and/or numbers of randomizations.}
     \item section 6: It is said that generating Halton points is slower and cannot use updating methods; but I remember that there is actually published results showing how to generate consecutive updates for Halton points.
     \response{I am not aware of such work. May you provide a reference?}
     \response{While there exists Graycode orderings for any prime base $b$, the orderings are different for the different bases used across dimensions of Halton points.}
-    \item[\rbullet] What I find missing in the article is an actual piece of example code to actually compute a high-dimensional integrand. Yes it is noted that the author mentions there is a notebook available for all the numerical experiments in the article, but one would hope that a demonstration to compute let say a 50 dimensional integral with 10 randomizations would fit in a couple of lines. (Say to demonstrate the timing as requested above.)
+    \item What I find missing in the article is an actual piece of example code to actually compute a high-dimensional integrand. Yes it is noted that the author mentions there is a notebook available for all the numerical experiments in the article, but one would hope that a demonstration to compute let say a 50 dimensional integral with 10 randomizations would fit in a couple of lines. (Say to demonstrate the timing as requested above.)
+    \response{Added a code snippet to compute a 50 dimensional Genz integral with 10 randomizations. A seperate code snippet shows how this can be done with a QMCPy stopping criterion algorithm which adaptively chooses the sample size to meet a user specified error tolerance.}
 \end{itemize}
 
 \end{document}
